@@ -114,6 +114,9 @@ public class SurveillanceController implements Closeable {
 			case Cmd.CMD_GET_MSG:
 				data = MainStart.msgStruct.msgStr.getBytes();
 				break;
+			case Cmd.CMD_GET_EXTRA_MSG:
+				data = MainStart.extraMsg.getBytes();
+				break;
 			case Cmd.CMD_SET_STATUS:
 				data = new byte[]{0};
 				int len = is.read();

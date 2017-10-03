@@ -35,7 +35,7 @@ public class MainStart {
 	public static MsgStruct msgStruct = MsgIndex.STOP;
 	
 	
-	
+	public static String extraMsg = "";
 	public static byte[] captureExtraInfo = new byte[0];
 	
 	private static void print(String info) {

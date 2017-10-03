@@ -11,11 +11,12 @@ import ian.main.MainStart;
 
 public class CaptureAdapter {
 	
-	public static final boolean isSkip = true;
+	public static final boolean isSkip = false;
 	private VideoCapture camera;
 	private Mat f;
 	static {
 		if (!isSkip) {
+			print("loadLibrary...");
 			System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		}
 	}
@@ -27,6 +28,7 @@ public class CaptureAdapter {
 	
 	public CaptureAdapter setup() throws IOException {
 		if (isSkip) return this;
+		print("Setup camera...");
 		f = new Mat();
 		camera = new VideoCapture(0);
 		try {
@@ -37,6 +39,7 @@ public class CaptureAdapter {
 		camera.open(0);
 		camera.set(Videoio.CV_CAP_PROP_FRAME_WIDTH, 500);
 		System.out.println(camera.set(Videoio.CV_CAP_PROP_FRAME_HEIGHT, 500));
+		print("Setup complete.");
         return this;
 	}
 	public void loop() throws IOException {
@@ -48,6 +51,7 @@ public class CaptureAdapter {
 
 	public void close() throws IOException {
 		if (isSkip) return;
+		print("Closing camera...");
 		camera.release();
 		print("Closed.");
 	}
