@@ -14,6 +14,7 @@ import ian.main.MainStart;
 import ian.main.capture.struct.Line;
 
 public class CaptureCalculator {
+	
 	public static void cal(Mat f) {
 		int status;
 		int deltaX;
@@ -25,7 +26,9 @@ public class CaptureCalculator {
 			Mat f2 = new Mat();
 			Mat edges = new Mat();
 			Mat hierarchy = new Mat();
-
+			if (f.empty()) {
+				throw new Exception("farme is empty");
+			}
 			Imgproc.cvtColor(f, f2, Imgproc.COLOR_BGR2GRAY);
 			Imgproc.GaussianBlur(f2, f2, new Size(3, 3), 0, 0);
 			Imgproc.Canny(f2, edges, 250, 150, 3, true);
@@ -145,6 +148,7 @@ public class CaptureCalculator {
 			StringWriter errors = new StringWriter();
 			e.printStackTrace(new PrintWriter(errors));
 			MainStart.extraMsg = errors.toString();
+			e.printStackTrace();
 			
 			status = 0;
 			deltaX = 0;

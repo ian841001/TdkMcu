@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
 
 import ian.main.MainStart;
 
@@ -13,7 +12,7 @@ public class CaptureAdapter {
 	
 	public static final boolean isSkip = false;
 	private VideoCapture camera;
-	private Mat f;
+	
 	static {
 		if (!isSkip) {
 			print("loadLibrary...");
@@ -29,21 +28,26 @@ public class CaptureAdapter {
 	public CaptureAdapter setup() throws IOException {
 		if (isSkip) return this;
 		print("Setup camera...");
-		f = new Mat();
-		camera = new VideoCapture(0);
+		camera = new VideoCapture();
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		camera.open(0);
-		camera.set(Videoio.CV_CAP_PROP_FRAME_WIDTH, 500);
-		System.out.println(camera.set(Videoio.CV_CAP_PROP_FRAME_HEIGHT, 500));
+		print(camera.open(0) ? "true" : "false");
+		
+//		print(camera.set(Videoio.CV_CAP_PROP_FRAME_WIDTH, 500) ? "true" : "false");
+//		print(camera.set(Videoio.CV_CAP_PROP_FRAME_HEIGHT, 500) ? "true" : "false");
+		if (!camera.isOpened()) {
+			print("Setup failed.");
+			throw new IOException("Setup failed.");
+		}
 		print("Setup complete.");
         return this;
 	}
 	public void loop() throws IOException {
 		if (isSkip) return;
+		Mat f = new Mat();
 		camera.read(f);
 		CaptureCalculator.cal(f);
 		
