@@ -85,6 +85,7 @@ public class MainStart {
 //		} catch (UnsupportedBusNumberException | IOException e) {
 //			e.printStackTrace();
 //		}
+//		JniTest.test();
 		System.exit(0);
 	}
 	
@@ -92,25 +93,6 @@ public class MainStart {
 		System.out.println("[" + className + "]: " + info);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 import ian.main.MainStart;
 
-public class CaptureAdapterOld {
+public class CaptureAdapterPython {
 	
 	public static final boolean isSkip = true;
 	public static final boolean isPyDebugPrint = false;
@@ -42,7 +42,7 @@ public class CaptureAdapterOld {
 		MainStart.print("CaptureAdapter", info);
 	}
 	
-	public CaptureAdapterOld setup() throws IOException {
+	public CaptureAdapterPython setup() throws IOException {
 		if (isSkip) return this;
 		print("Listening at port " + String.valueOf(LISTEN_PORT) + " ...");
 		server = new ServerSocket(LISTEN_PORT);

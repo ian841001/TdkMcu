@@ -13,7 +13,6 @@ import org.opencv.imgproc.Imgproc;
 import ian.main.MainStart;
 import ian.main.capture.struct.ExtraPic;
 import ian.main.capture.struct.Line;
-import ian.main.mcu.MCU;
 
 public class CaptureCalculator {
 	
@@ -46,54 +45,47 @@ public class CaptureCalculator {
 	}
 	
 	public static void calRoute(ArrayList<MatOfPoint> contours) {
-		MCU.printTime();
-		int frameX = 500;
-		int frameY = 500;
-		ArrayList<Point> points = new ArrayList<>();
+		int frameXY = 500;
+		Point[][] pointList = new Point[frameXY/2][4];
 		
-//		Point R = new Point();
-//		Point T = new Point();
-//		Point L = new Point();
-//		Point B = new Point();
-		for(int i=0; i<500; i++) {
-			points.clear();
-			int Rf = 0;
-			int Tf = 0;
-			int Lf = 0;
-			int Bf = 0;
-			for(MatOfPoint contour : contours) {
-				for (Point p : contour.toArray()) {
-					if(p.x == i && p.y <= frameY-i && p.y >= i && Lf == 0) {
-//						L = p;
-						Lf = 1;
-						points.add(p);
-					} else if (p.y == i && p.x <= frameX-i && p.x >= i && Tf == 0) {
-//						T = p;
-						Tf = 1;
-						points.add(p);
-					} else if (p.x == frameX-i && p.y <= frameY-i && p.y >= i && Rf == 0){
-//						R = p;
-						Rf = 1;
-						points.add(p);
-					} else if (p.y == frameY-i && p.x <= 500-i && p.x >= i && Bf == 0) {
-//						B = p;
-						Bf = 1;
-						points.add(p);
+		for(MatOfPoint contour : contours) {
+			for (Point p : contour.toArray()) {
+				int x = (int) p.x;
+				int y = (int) p.y;
+				int r1 = x - y;
+				int r2 = x + y;
+				if (r1 >= 0) {
+					if (r2 >= frameXY) {
+						pointList[frameXY-x][1] = p;
+					} else {
+						pointList[y][0] = p;
 					}
-					
+				} else {
+					if (r2 >= frameXY) {
+						pointList[frameXY-y][2] = p;
+					} else {
+						pointList[x][3] = p;
+					}
 				}
 			}
-			if (Lf+Tf+Rf+Bf>=2) break;
-			
 		}
 		
+		ArrayList<Point> finalPoint = new ArrayList<>();
+		for(int i=0; i<250; i++) {
+			finalPoint.clear();
+			for(int j=0; j<4; j++) {
+				if (pointList[i][j] != null) finalPoint.add(pointList[i][j]);
+			}
+			if (finalPoint.size() >= 2) {
+				// ps.println("FIND");
+				break;
+			}
+		}
 		ExtraPic ep = new ExtraPic();
-		for (Point p : points) {
+		for (Point p : finalPoint) {
 			ep.addBlueCircle((short)p.x, (short)p.y, (short)10);
 		}
 		MainStart.captureExtraInfo = ep;
-		MCU.printTime();
-		System.out.println();
 //		ps.printf("%s %s %s %s", R, T, L, B);
 		
 //		BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_3BYTE_BGR);
@@ -144,7 +136,6 @@ public class CaptureCalculator {
 //				}
 //			}
 			
-			MCU.printTime();
 			
 //			Point[] max = contours.get(0).toArray();
 //			for (int i = 1; i < contours.size(); i++) {
@@ -323,16 +314,12 @@ public class CaptureCalculator {
 			deltaY = 0;
 			angle = 0;
 		}
-		MCU.printTime();
 		MainStart.captureExtraInfo = ep;
-		
-		MCU.printTime();
 		
 		
 		
 		
 		storeInfo((byte)status, (short)deltaX, (short)deltaY, angle);
-		MCU.printTime();
 		System.out.println();
 	}
 	
