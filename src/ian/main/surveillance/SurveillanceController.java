@@ -1,7 +1,9 @@
 package ian.main.surveillance;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -88,16 +90,13 @@ public class SurveillanceController implements Closeable {
 			byte[] data;
 			switch (cmd) {
 			case Cmd.CMD_GET_INFO:
-				data = MainStart.info.getData();
-				break;
-			case Cmd.CMD_GET_OTHER_INFO:
-				data = MainStart.info.getOtherData();
-				break;
-			case Cmd.CMD_GET_CAPTURE_INFO:
-				data = MainStart.info.getCaptureData();
+				data = MainStart.info.getAll();
 				break;
 			case Cmd.CMD_GET_CAPTURE_EXTRA_INFO:
-				data = MainStart.captureExtraInfo;
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+			    ObjectOutputStream os = new ObjectOutputStream(out);
+			    os.writeObject(MainStart.captureExtraInfo);
+				data = out.toByteArray();
 				break;
 			case Cmd.CMD_GET_RPI_INFO:
 				ByteBuffer buffer = ByteBuffer.allocate(45).order(ByteOrder.LITTLE_ENDIAN);

@@ -12,7 +12,7 @@ import ian.main.serial.exception.TimeOutException;
 import ian.main.serial.exception.UnknownErrorException;
 
 public class MwcSerialAdapter {
-	public static final boolean isSkip = true;
+	public static final boolean isSkip = false;
 	
 	private MwcSerial serial;
 	public MwcSerialAdapter() {
@@ -32,7 +32,7 @@ public class MwcSerialAdapter {
 	public short[] getRc() throws IOException, NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException {
 		short outt[] = new short[8];
 		if (isSkip) return outt;
-		ByteBuffer.wrap(serial.getData(MwcSerial.Cmd.MSP_RC))
+		ByteBuffer.wrap(serial.getData(MwcSerial.Cmd.MSP_RC, null))
 				.order(ByteOrder.LITTLE_ENDIAN)
 				.asShortBuffer()
 				.get(outt);
@@ -50,8 +50,15 @@ public class MwcSerialAdapter {
 		serial.setData(MwcSerial.Cmd.MSP_SET_RAW_RC, buffer.array());
 	}
 	
-	public byte[] getRpi() throws NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException, IOException {
+	public byte[] getRpi(short[] data) throws NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException, IOException {
 		if (isSkip) return new byte[57];
-		return serial.getData(MwcSerial.Cmd.MSP_RPI);
+		if (data == null || data.length != 8) {
+			throw new DataNotReadyException("data length = " + data != null ? String.valueOf(data.length) : "null");
+		}
+		ByteBuffer buffer = ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN);
+		for (short each : data) {
+			buffer.putShort(each);
+		}
+		return serial.getData(MwcSerial.Cmd.MSP_RPI, buffer.array());
 	}
 }

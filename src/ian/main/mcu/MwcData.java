@@ -7,6 +7,9 @@ public class MwcData {
 	public static final int DATA_LEN = 57;
 	public static final int OTHER_DATA_LEN = 12;
 	public static final int CAPTURE_DATA_LEN = 7;
+	public static final int MCU_DATA_LEN = 4;
+	
+	public static final int ALL_DATA_LEN = DATA_LEN + OTHER_DATA_LEN + CAPTURE_DATA_LEN + MCU_DATA_LEN;
 	
 	
 	
@@ -17,6 +20,7 @@ public class MwcData {
     public int altEstAlt;
     public short altVario;
     public int altHold;
+    public boolean isSonarOk;
     public boolean ok_to_arm;
     public boolean angle_mode;
     public boolean armed;
@@ -33,6 +37,12 @@ public class MwcData {
     public short captureDeltaX;
     public short captureDeltaY;
     public short captureAngle;
+    
+
+    public byte rpMode;
+    public byte yawMode;
+    public byte armMode;
+    public byte baroMode;
     
     
     
@@ -63,7 +73,7 @@ public class MwcData {
         angle_mode = (tmp & (1 << 1)) != 0;
         armed      = (tmp & (1 << 2)) != 0;
         baro_mode  = (tmp & (1 << 3)) != 0;
-        
+        isSonarOk  = (tmp & (1 << 4)) != 0;
         
         return this;
     }
@@ -92,6 +102,7 @@ public class MwcData {
     	if (angle_mode) tmp |= (1 << 1);
     	if (armed     ) tmp |= (1 << 2);
     	if (baro_mode ) tmp |= (1 << 3);
+    	if (isSonarOk ) tmp |= (1 << 4);
     	byteBuffer.put(tmp);
     	
     	return byteBuffer.array();
@@ -144,6 +155,66 @@ public class MwcData {
     	byteBuffer.putShort(captureDeltaY);
     	byteBuffer.putShort(captureAngle);
     	
+    	return byteBuffer.array();
+    }
+    
+    public MwcData setMcuData(byte[] data) {
+    	if (data.length != MCU_DATA_LEN) {
+    		throw new RuntimeException("MCU_DATA_LEN = " + String.valueOf(MCU_DATA_LEN) + " , data.length = " + String.valueOf(data.length));
+    	}
+    	ByteBuffer byteBuffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+    	rpMode = byteBuffer.get();
+    	yawMode = byteBuffer.get();
+    	armMode = byteBuffer.get();
+    	baroMode = byteBuffer.get();
+    	return this;
+    }
+    public byte[] getMcuData() {
+    	ByteBuffer byteBuffer = ByteBuffer.allocate(MCU_DATA_LEN).order(ByteOrder.LITTLE_ENDIAN);
+    	
+    	byteBuffer.put(rpMode);
+    	byteBuffer.put(yawMode);
+    	byteBuffer.put(armMode);
+    	byteBuffer.put(baroMode);
+    	
+    	return byteBuffer.array();
+    }
+    
+    public MwcData setAll(byte[] data) {
+    	if (data.length != ALL_DATA_LEN) {
+    		throw new RuntimeException("ALL_DATA_LEN = " + String.valueOf(ALL_DATA_LEN) + " , data.length = " + String.valueOf(data.length));
+    	}
+    	int index = 0;
+    	byte[] eachdata;
+    	eachdata = new byte[DATA_LEN];
+    	System.arraycopy(data, index, eachdata, 0, eachdata.length);
+    	setData(eachdata);
+    	index += eachdata.length;
+    	
+    	eachdata = new byte[OTHER_DATA_LEN];
+    	System.arraycopy(data, index, eachdata, 0, eachdata.length);
+    	setOtherData(eachdata);
+    	index += eachdata.length;
+    	
+    	eachdata = new byte[CAPTURE_DATA_LEN];
+    	System.arraycopy(data, index, eachdata, 0, eachdata.length);
+    	setCaptureData(eachdata);
+    	index += eachdata.length;
+    	
+    	eachdata = new byte[MCU_DATA_LEN];
+    	System.arraycopy(data, index, eachdata, 0, eachdata.length);
+    	setMcuData(eachdata);
+    	index += eachdata.length;
+    	
+    	return this;
+    }
+    public byte[] getAll() {
+    	ByteBuffer byteBuffer = ByteBuffer.allocate(ALL_DATA_LEN).order(ByteOrder.LITTLE_ENDIAN);
+    	
+    	byteBuffer.put(getData());
+    	byteBuffer.put(getOtherData());
+    	byteBuffer.put(getCaptureData());
+    	byteBuffer.put(getMcuData());
     	
     	return byteBuffer.array();
     }

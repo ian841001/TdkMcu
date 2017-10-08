@@ -80,7 +80,7 @@ public class CaptureAdapterOld {
 		
 		MainStart.info.setCaptureData(cmd(CMD_GET_DATA));
 		
-		MainStart.captureExtraInfo = cmd();
+		// MainStart.captureExtraInfo = cmd();
 	}
 	
 	private byte[] cmd(byte cmd) throws IOException {

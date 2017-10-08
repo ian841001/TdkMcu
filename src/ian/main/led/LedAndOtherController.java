@@ -1,4 +1,4 @@
-package ian.main;
+package ian.main.led;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 import ian.main.mcu.MwcData;
 
 public class LedAndOtherController {
-	public static final boolean isSkip = true;
+	public static final boolean isSkip = false;
 	
 	private static final int LED_COUNT = 2;
 	private static final byte I2C_ADDR = 0x12;

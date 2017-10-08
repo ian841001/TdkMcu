@@ -46,20 +46,20 @@ public class MwcSerial {
         return readByteArray(isBin);
     }
 
-    public byte[] getData(byte cmd) throws IOException, NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException {
+    public byte[] getData(byte cmd, byte[] data) throws IOException, NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException {
 //        switch (cmd) {
 //        case Cmd.MSP_RPI:
 //        	return new byte[57];
 //		default:
 //			throw new RuntimeException(String.valueOf(cmd));
 //        }
-    	sendByteArray(cmd);
+    	sendByteArray(cmd, data);
         return getData(false);
     }
 
     public void setData(byte cmd, byte[] data) throws IOException, NoConnectedException, TimeOutException, DataNotReadyException, UnknownErrorException {
-         sendByteArray(cmd, data);
-         getData(false);
+    	sendByteArray(cmd, data);
+    	getData(false);
     }
 	
 	public void open() throws UnsupportedBoardType, IOException, InterruptedException {
@@ -80,10 +80,6 @@ public class MwcSerial {
 		serial.close();
 		q.clear();
 	}
-	
-	private void sendByteArray(byte cmd) throws IOException, NoConnectedException {
-        sendByteArray(cmd, null);
-    }
 
 	public void sendByteArray(byte cmd, byte[] data) throws NoConnectedException, IOException {
         if (!serial.isOpen()) {

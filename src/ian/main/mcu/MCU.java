@@ -10,9 +10,9 @@ import com.pi4j.io.gpio.exception.UnsupportedBoardType;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 import com.sun.xml.internal.ws.Closeable;
 
-import ian.main.LedAndOtherController;
 import ian.main.MainStart;
 import ian.main.capture.CaptureAdapter;
+import ian.main.led.LedAndOtherController;
 import ian.main.serial.MwcSerialAdapter;
 import ian.main.serial.exception.DataNotReadyException;
 import ian.main.serial.exception.NoConnectedException;
@@ -42,9 +42,9 @@ public class MCU implements Closeable {
 
 	
 	static class ControlMode {
-		static final int RELEASE = 0;
-		static final int STOP = 1;
-		static final int WORK = 2;
+		static final byte RELEASE = 0;
+		static final byte STOP = 1;
+		static final byte WORK = 2;
 	}
 	
 	
@@ -52,12 +52,6 @@ public class MCU implements Closeable {
 	public static int throttleHoldValue;
 	static int throttleValue = 0;
 	// ------------------throttle-------------------
-	
-	
-	// ------------------yaw------------------------
-	static int yawMode = ControlMode.RELEASE;
-	static int yawFixAngle = 0;
-	// ------------------yaw------------------------
 	
 	
 	// ------------------time-----------------------
@@ -76,10 +70,12 @@ public class MCU implements Closeable {
 	
 	
 	// ------------------mode flag------------------
-	static int armMode = ControlMode.RELEASE;
-	static int baroMode = ControlMode.RELEASE;
-	static int ledMode = ControlMode.RELEASE;
+	static int ledMode = 0;
 	// ------------------mode flag------------------
+	
+	static boolean pwr = false;
+	static boolean btn = false;
+	
 	
 	
 	private static void print(String info) {
@@ -98,6 +94,7 @@ public class MCU implements Closeable {
 				this.msgStr = msgStr;
 			}
 		}
+		public static final MsgStruct POWER_OFF      = new MsgStruct(0, "系統釋放");
 		public static final MsgStruct STOP           = new MsgStruct(0, "等待");
 		public static final MsgStruct RUN            = new MsgStruct(0, "動作中");
 		
@@ -125,12 +122,25 @@ public class MCU implements Closeable {
 		switch (step) {
 		case 0:
 			step = 1;
-			armMode = ControlMode.STOP;
-			baroMode = ControlMode.STOP;
+			info.armMode = ControlMode.STOP;
+			info.baroMode = ControlMode.STOP;
+//			info.yawMode = ControlMode.STOP;
+//			info.rpMode = ControlMode.STOP;
+			MainStart.msgStruct = MsgIndex.STOP;
 			
-			MainStart.msgStruct = MsgIndex.RUN;
+			
+//			info.yawMode = ControlMode.WORK;
+//			info.rpMode = ControlMode.WORK;
 			break;
 		case 1:
+			if (btn) {
+				step = 2;
+				MainStart.msgStruct = MsgIndex.RUN;
+			}
+//			info.yawMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
+//			info.rpMode = info.extraRc[2] > 1300 ? ControlMode.WORK : ControlMode.RELEASE;
+			break;
+		case 2:
 			switch ((info.ok_to_arm ? 1 : 0) + (info.angle_mode ? 2 : 0)) {
 			case 3: MainStart.msgStruct = MsgIndex.RUN; step = 10; break;
 			case 2: MainStart.msgStruct = MsgIndex.WAIT_MODE_1; break;
@@ -140,7 +150,7 @@ public class MCU implements Closeable {
 			}
 			break;
 		case 10: // 解鎖油門
-			armMode = ControlMode.WORK;
+			info.armMode = ControlMode.WORK;
 			throttleValue = 1098;
 			if (info.armed) {
 				MainStart.msgStruct = MsgIndex.READY_FLY;
@@ -176,7 +186,7 @@ public class MCU implements Closeable {
 			}
 			break;
 		case 13: // 設定高度200cm
-			baroMode = ControlMode.WORK;
+			info.baroMode = ControlMode.WORK;
 			if (info.baro_mode) {
 				setWantAlt = 80;
 				step = 14;
@@ -193,11 +203,13 @@ public class MCU implements Closeable {
 			step = 16;
 			break;
 		case 16:
-			if (info.extraRc[0] > 1700) {
+			if (btn) {
 				step = 100;
-				yawMode = ControlMode.RELEASE;
+				info.yawMode = ControlMode.RELEASE;
+				info.rpMode = ControlMode.RELEASE;
 			}
-			yawMode = info.extraRc[1] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
+			info.yawMode = info.extraRc[0] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
+			info.rpMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
 			break;
 		case 100: // 終點降落
 			setWantAlt = 0;
@@ -211,14 +223,14 @@ public class MCU implements Closeable {
 			break;
 		case 102: // 上鎖油門
 			throttleValue = 1098;
-			armMode = ControlMode.STOP;
-			baroMode = ControlMode.STOP;
+			info.armMode = ControlMode.STOP;
+			info.baroMode = ControlMode.STOP;
 			MainStart.msgStruct = MsgIndex.LANDED;
 			break;
 		case 500:
 			throttleValue = 1098;
-			armMode = ControlMode.STOP;
-			baroMode = ControlMode.STOP;
+			info.armMode = ControlMode.STOP;
+			info.baroMode = ControlMode.STOP;
 			MainStart.msgStruct = MsgIndex.CAN_NOT_FLY;
 			break;
 		default:
@@ -227,9 +239,9 @@ public class MCU implements Closeable {
 	}
 	void mode() {
 		
-		setRc.setAux1(choose(armMode , 0, 0, 1098, 1898));
+		setRc.setAux1(choose(info.armMode , 0, 0, 1098, 1898));
 		
-		setRc.setAux3(choose(baroMode, 0, 0, 1500, 1898));
+		setRc.setAux3(choose(info.baroMode, 0, 0, 1500, 1898));
 		
 		if (info.baro_mode) {
 			int offset = setWantAlt - info.altHold;
@@ -243,7 +255,7 @@ public class MCU implements Closeable {
 			setRc.setThrottle(throttleValue);
 		}
 		
-		switch (yawMode) {
+		switch (info.yawMode) {
 		case ControlMode.RELEASE:
 			setRc.setYaw(0);
 			break;
@@ -251,9 +263,9 @@ public class MCU implements Closeable {
 			setRc.setYaw(1500);
 			break;
 		case ControlMode.WORK:
-			int tmp = 1500 + yawFixAngle * 1;
-			if (tmp > 1850) {
-				tmp = 1850;
+			int tmp = (int) (1500 + info.captureAngle * 0.1);
+			if (tmp > 1900) {
+				tmp = 1900;
 			}
 			if (tmp < 1100) {
 				tmp = 1100;
@@ -262,6 +274,42 @@ public class MCU implements Closeable {
 			break;
 		default:
 			setRc.setYaw(0);
+			break;
+		}
+		
+		switch (info.rpMode) {
+		case ControlMode.RELEASE:
+			setRc.setRoll(0);
+			setRc.setPitch(0);
+			break;
+		case ControlMode.STOP:
+			setRc.setRoll(1500);
+			setRc.setPitch(1500);
+			break;
+		case ControlMode.WORK:
+			int tmp;
+			
+			tmp = (int) (1500 - getCm(info.captureDeltaX) * 1);
+			if (tmp > 1900) {
+				tmp = 1900;
+			}
+			if (tmp < 1100) {
+				tmp = 1100;
+			}
+			setRc.setRoll(tmp);
+			
+			tmp = (int) (1500 + getCm(info.captureDeltaY) * 1);
+			if (tmp > 1900) {
+				tmp = 1900;
+			}
+			if (tmp < 1100) {
+				tmp = 1100;
+			}
+			setRc.setPitch(tmp);
+			break;
+		default:
+			setRc.setRoll(0);
+			setRc.setPitch(0);
 			break;
 		}
 		
@@ -305,22 +353,24 @@ public class MCU implements Closeable {
 	}
 	
 	
-	static void extra() {
-		yawFixAngle = MainStart.extraInfo[0] - info.att[2];
+	void extra() {
 		
-		if (yawFixAngle < -180) {
-			yawFixAngle += 360;
-		}
-		if (yawFixAngle > 180) {
-			yawFixAngle -= 360;
-		}
 		
-		MainStart.debug0 = MainStart.extraInfo[0];
-		MainStart.debug1 = info.att[2];
+//		yawFixAngle = MainStart.extraInfo[0] - info.att[2];
+//		
+//		if (yawFixAngle < -180) {
+//			yawFixAngle += 360;
+//		}
+//		if (yawFixAngle > 180) {
+//			yawFixAngle -= 360;
+//		}
 		
-		MainStart.debug2 = yawFixAngle;
-		
-		MainStart.debug3 = yawMode;
+//		MainStart.debug0 = MainStart.extraInfo[0];
+//		MainStart.debug1 = info.att[2];
+//		
+//		MainStart.debug2 = yawFixAngle;
+//		
+//		MainStart.debug3 = yawMode;
 	}
 	
 	
@@ -331,22 +381,27 @@ public class MCU implements Closeable {
 		return this;
 	}
 	
-	
+	static long printTime1 = new Date().getTime();
+	public static void printTime() {
+		long printTime2 = new Date().getTime();
+		System.out.printf("%5d , ", printTime2 - printTime1);
+		printTime1 = printTime2;
+	}
 	
 	public boolean loop() {
 		
 		try {
 			ca.loop();
 			pyError = 0;
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			pyError++;
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
 		
-		setRc.reset();
+		
 		
 		try {
-			info.setData(mwc.getRpi());
+			info.setData(mwc.getRpi(setRc.getData()));
 			mwcError = 0;
 		} catch(NoConnectedException | TimeOutException | DataNotReadyException | UnknownErrorException | IOException e) {
 			if (mwcError == 0) {
@@ -356,13 +411,24 @@ public class MCU implements Closeable {
 			e.printStackTrace();
 		}
 		
+		setRc.reset();
+		
 		if (getTime() - ledUpdateTime > 250) {
 			try {
 				info.setOtherData(loc.getSonar());
+				if (ledError != 0) {
+					print("conn led IO");
+				}
 				ledError = 0;
 			} catch(IOException e) {
+				if (e.getMessage().equals("Remote I/O error")) {
+					if (ledError == 0) {
+						print("lost led IO");
+					}
+				} else {
+					e.printStackTrace();
+				}
 				ledError++;
-				e.printStackTrace();
 			}
 			ledUpdateTime = getTime();
 		}
@@ -373,17 +439,10 @@ public class MCU implements Closeable {
 		extra();
 		
 		
+		pwr = info.extraRc[1] > 1300;
+		btn = info.extraRc[1] > 1700;
 		
-		if (info.extraRc[2] < 1700) { // ems
-			step = 0;
-			
-			throttleValue = 0;
-			armMode = ControlMode.RELEASE;
-			baroMode = ControlMode.RELEASE;
-			ledMode = 0;
-			
-			MainStart.msgStruct = MsgIndex.STOP;
-		} else {
+		if (pwr) {
 			try {
 				stl();
 				mode();
@@ -392,18 +451,37 @@ public class MCU implements Closeable {
 				modeError++;
 				e.printStackTrace();
 			}
-			
+		} else {
+			step = 0;
+			MainStart.msgStruct = MsgIndex.POWER_OFF;
+			info.armMode = ControlMode.RELEASE;
+			info.baroMode = ControlMode.RELEASE;
+			info.yawMode = ControlMode.RELEASE;
+			info.rpMode = ControlMode.RELEASE;
 		}
 		
-		try {
-			mwc.setRc(setRc.getData());
-		} catch (DataNotReadyException | NoConnectedException | TimeOutException | UnknownErrorException | IOException e) {
-			e.printStackTrace();
-		}
+//		MainStart.debug0 = setRc.getRoll();
+//		MainStart.debug1 = setRc.getPitch();
+//		MainStart.debug2 = setRc.getYaw();
+		
+		setRc.setRoll(0);
+		setRc.setPitch(0);
+		setRc.setYaw(0);
 		
 		
-		if (ledError != 0 || modeError != 0 || pyError != 0 || (mwcError != 0 && (getTime() - mwcErrorTime > 800))) {
-			System.out.printf("ledError = %d\nmodeError = %d\npyError = %d\nmwcError = %d\n", ledError, modeError, pyError, mwcError);
+		
+		
+		
+		
+		
+		if (modeError != 0 || pyError != 0 || (mwcError != 0 && (getTime() - mwcErrorTime > 800))) {
+			System.out.printf("modeError = %d\npyError = %d\nmwcError = %d\n", modeError, pyError, mwcError);
+			try {
+				setRc.reset();
+				mwc.setRc(setRc.getData());
+			} catch (DataNotReadyException | NoConnectedException | TimeOutException | UnknownErrorException | IOException e) {
+				e.printStackTrace();
+			}
 			return false;
 		}
 		try {
@@ -437,5 +515,8 @@ public class MCU implements Closeable {
 		}
 		
 		
+	}
+	public static double getCm(short pixel) {
+		return pixel * (info.altEstAlt + 6) / 535.6;
 	}
 }

@@ -8,6 +8,7 @@ import javax.xml.ws.WebServiceException;
 import com.pi4j.io.gpio.exception.UnsupportedBoardType;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
+import ian.main.capture.struct.ExtraPic;
 import ian.main.mcu.MCU;
 import ian.main.mcu.MCU.MsgIndex;
 import ian.main.mcu.MCU.MsgIndex.MsgStruct;
@@ -32,11 +33,11 @@ public class MainStart {
 	public static int cycleTime;
 	public static int debug0, debug1, debug2, debug3, debug4, debug5, debug6, debug7;
 	
-	public static MsgStruct msgStruct = MsgIndex.STOP;
+	public static MsgStruct msgStruct = MsgIndex.POWER_OFF;
 	
 	
 	public static String extraMsg = "";
-	public static byte[] captureExtraInfo = new byte[0];
+	public static ExtraPic captureExtraInfo = new ExtraPic();
 	
 	private static void print(String info) {
 		MainStart.print("Main", info);
@@ -79,51 +80,13 @@ public class MainStart {
 	
 	public static void main(String[] args) {
 		run(args);
+//		try {
+//			Test.test();
+//		} catch (UnsupportedBusNumberException | IOException e) {
+//			e.printStackTrace();
+//		}
 		System.exit(0);
 	}
-	
-//	public static void test(String[] args) {
-//		
-//		try {
-//			mwc = new MwcSerialAdapter().open();
-//			
-//			
-//		} catch (UnsupportedBoardType | IOException | InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		while(true) {
-//			try {
-//				short[] a = mwc.getRc();
-//				for (short aa : a) {
-//					System.out.print(aa);
-//					System.out.print(" , ");
-//				}
-//				System.out.println();
-//				Thread.sleep(100);
-//			} catch (NoConnectedException | TimeOutException | DataNotReadyException | UnknownErrorException
-//					| IOException | InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-//		}
-//	}
-	
-//	public static void test2(String[] args) {
-//		
-//		try {
-//			System.out.println("start.");
-//			TempLed tempLed = new TempLed();
-//			System.out.println("2");
-//			// tempLed.setMode(2);
-//			Thread.sleep(1000);
-//			tempLed.close();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
 	
 	public static void print(String className, String info) {
 		System.out.println("[" + className + "]: " + info);

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+
+<Pane prefHeight="900" prefWidth="1500" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ian.application.MainController">
+	<Pane layoutX="0" layoutY="0">
+		<Button fx:id="btnConn" layoutX="330" layoutY="15" prefHeight="23" prefWidth="75" text="Conn" blendMode="MULTIPLY" mnemonicParsing="false" />
+		<Button fx:id="btnDisc" layoutX="415" layoutY="15" prefHeight="23" prefWidth="75" text="Disc" blendMode="MULTIPLY" mnemonicParsing="false" />
+		<Label fx:id="lblStatus" layoutX="500" layoutY="20" prefWidth="100" text="lblStatus" />
+		
+		<Label layoutX="20" layoutY="19" text="IP :" />
+		<TextField fx:id="txtIp" layoutX="60" layoutY="15" prefWidth="120" text="192.168.43.63" />
+		<Label layoutX="200" layoutY="19" text="PORT :" />
+		<TextField fx:id="txtPort" layoutX="260" layoutY="15" prefWidth="60" text="5987" />
+		<Label fx:id="msgLbl" layoutX="20" layoutY="60" prefWidth="600"><font><Font size="60"/></font></Label>
+		
+		
+		<!-- rpi -->
+		<Pane layoutX="630" layoutY="10">
+			<Label layoutX="0" layoutY="0" text="step = " />
+			<Label fx:id="rpiLbl1" layoutX="40" layoutY="0" text="102" />
+			<Label layoutX="70" layoutY="0" text="altWant = " />
+			<Label fx:id="rpiLbl2" layoutX="130" layoutY="0" text="200" />
+			<Label layoutX="160" layoutY="0" text="altHold = " />
+			<Label fx:id="rpiLbl3" layoutX="220" layoutY="0" text="200" />
+			<Label layoutX="240" layoutY="0" text="cycleTime = " />
+			<Label fx:id="rpiLbl4" layoutX="320" layoutY="0" text="200" />
+			
+			<Label fx:id="rpiLblDebug0" layoutX="0" layoutY="20" text="200" />
+			<Label fx:id="rpiLblDebug1" layoutX="100" layoutY="20" text="200" />
+			<Label fx:id="rpiLblDebug2" layoutX="200" layoutY="20" text="200" />
+			<Label fx:id="rpiLblDebug3" layoutX="300" layoutY="20" text="200" />
+			
+			<Label fx:id="rpiLblDebug4" layoutX="0" layoutY="40" text="200" />
+			<Label fx:id="rpiLblDebug5" layoutX="100" layoutY="40" text="200" />
+			<Label fx:id="rpiLblDebug6" layoutX="200" layoutY="40" text="200" />
+			<Label fx:id="rpiLblDebug7" layoutX="300" layoutY="40" text="200" />
+		</Pane>
+		<!-- end rpi -->
+		
+		<!-- debug -->
+		<Pane layoutX="630" layoutY="70">
+			<Label fx:id="mwcLblDebug0" layoutX="0" layoutY="0" text="200" />
+			<Label fx:id="mwcLblDebug1" layoutX="100" layoutY="0" text="200" />
+			<Label fx:id="mwcLblDebug2" layoutX="200" layoutY="0" text="200" />
+			<Label fx:id="mwcLblDebug3" layoutX="300" layoutY="0" text="200" />
+		</Pane>
+		<!-- end debug -->
+		
+		<!-- extraInfo -->
+		<Pane layoutX="630" layoutY="90">
+			<TextField fx:id="extraInfoTxt0" layoutX="0" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt1" layoutX="50" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt2" layoutX="100" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt3" layoutX="150" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt4" layoutX="200" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt5" layoutX="250" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt6" layoutX="300" layoutY="0" prefWidth="47" text="0" />
+			<TextField fx:id="extraInfoTxt7" layoutX="350" layoutY="0" prefWidth="47" text="0" />
+			
+			<Label fx:id="extraInfoLbl0" layoutX="9" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl1" layoutX="59" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl2" layoutX="109" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl3" layoutX="159" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl4" layoutX="209" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl5" layoutX="259" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl6" layoutX="309" layoutY="30" text="0" />
+			<Label fx:id="extraInfoLbl7" layoutX="359" layoutY="30" text="0" />
+		</Pane>
+		<!-- end extraInfo -->
+	</Pane>
+	
+	<Pane layoutX="1050" layoutY="0">
+		<!-- motor -->
+		<Pane layoutX="0" layoutY="40">
+			<Pane layoutX="0" layoutY="0">
+				<Rectangle layoutX="0" layoutY="0" height="60" width="425" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="motorRec1" layoutX="0" layoutY="0" height="60" width="75" style="-fx-fill: #FF8080;" />
+				<Label fx:id="motorLbl1" layoutX="10" layoutY="0" text="1000"><font><Font size="50.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="70">
+				<Rectangle layoutX="0" layoutY="0" height="60" width="425" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="motorRec2" layoutX="0" layoutY="0" height="60" width="75" style="-fx-fill: #FF8080;" />
+				<Label fx:id="motorLbl2" layoutX="10" layoutY="0" text="1000"><font><Font size="50.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="140">
+				<Rectangle layoutX="0" layoutY="0" height="60" width="425" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="motorRec3" layoutX="0" layoutY="0" height="60" width="75" style="-fx-fill: #FF8080;" />
+				<Label fx:id="motorLbl3" layoutX="10" layoutY="0" text="1000"><font><Font size="50.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="210">
+				<Rectangle layoutX="0" layoutY="0" height="60" width="425" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="motorRec4" layoutX="0" layoutY="0" height="60" width="75" style="-fx-fill: #FF8080;" />
+				<Label fx:id="motorLbl4" layoutX="10" layoutY="0" text="1000"><font><Font size="50.0"/></font></Label>
+			</Pane>
+		</Pane>
+		<!-- end motor -->
+		
+		<!-- rc -->
+		<Pane layoutX="0" layoutY="350">
+			<Pane layoutX="0" layoutY="0">
+				<Label layoutX="0" layoutY="5" text="ROLL"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec1" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl1" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="225" layoutY="0">
+				<Label layoutX="0" layoutY="5" text="AUX1"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec5" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl5" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="40">
+				<Label layoutX="0" layoutY="5" text="PITCH"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec2" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl2" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="225" layoutY="40">
+				<Label layoutX="0" layoutY="5" text="AUX2"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec6" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl6" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="80">
+				<Label layoutX="0" layoutY="5" text="YAW"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec3" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl3" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="225" layoutY="80">
+				<Label layoutX="0" layoutY="5" text="AUX3"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec7" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl7" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="0" layoutY="120">
+				<Label layoutX="0" layoutY="5" text="THROTTLE"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec4" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl4" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			<Pane layoutX="225" layoutY="120">
+				<Label layoutX="0" layoutY="5" text="AUX4"><font><Font size="17.0"/></font></Label>
+				<Rectangle layoutX="100" layoutY="0" height="30" width="100" style="-fx-fill: #FFFFFF;" />
+				<Rectangle fx:id="rcRec8" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
+				<Label fx:id="rcLbl8" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
+			</Pane>
+			
+		</Pane>
+		<!-- end rc -->
+		
+		<!-- alt -->
+		<Pane layoutX="0" layoutY="500">
+			<Label fx:id="altLbl" layoutX="0" layoutY="0" text="100" prefWidth="250"><font><Font size="100.0"/></font></Label>
+			<Label layoutX="250" layoutY="0" text="cm"><font><Font size="100.0"/></font></Label>
+		</Pane>
+		<!-- end alt -->
+		
+		<!-- mode -->
+		<Pane layoutX="0" layoutY="630">
+			<Label fx:id="modeLbl1" layoutX="0" layoutY="0" text="ok_to_arm" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="modeLbl2" layoutX="106" layoutY="0" text="angle_mode" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="modeLbl3" layoutX="230" layoutY="0" text="armed" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="modeLbl4" layoutX="300" layoutY="0" text="baro_mode" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+		</Pane>
+		<!-- end mode -->
+		
+		<!-- att -->
+		<Pane layoutX="0" layoutY="650">
+			
+		</Pane>
+		<!-- end att -->
+		
+		<!-- cap -->
+		<Pane layoutX="0" layoutY="660">
+			<Label layoutX="0" layoutY="0" text="status = " />
+			<Label fx:id="capLbl0" layoutX="50" layoutY="0" text="102" />
+			<Label layoutX="100" layoutY="0" text="ΔX = " />
+			<Label fx:id="capLbl1" layoutX="130" layoutY="0" text="200" />
+			<Label layoutX="190" layoutY="0" text="ΔY = " />
+			<Label fx:id="capLbl2" layoutX="220" layoutY="0" text="200" />
+			<Label layoutX="290" layoutY="0" text="angle = " />
+			<Label fx:id="capLbl3" layoutX="340" layoutY="0" text="200" />
+		</Pane>
+		<!-- end cap -->
+		
+		<!-- mcu mode -->
+		<Pane layoutX="0" layoutY="690">
+			<Label fx:id="mcuModeLbl0" layoutX="0" layoutY="0" text="ARM" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="mcuModeLbl1" layoutX="50" layoutY="0" text="BAR" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="mcuModeLbl2" layoutX="100" layoutY="0" text="YAW" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="mcuModeLbl3" layoutX="150" layoutY="0" text="R&amp;P" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+		</Pane>
+		<!-- end mcu mode -->
+		
+		
+	</Pane>
+	
+	
+	<!-- image -->
+	<Pane layoutX="20" layoutY="150">
+		<ImageView fx:id="imageView0" fitHeight="500" fitWidth="500" layoutX="0" layoutY="0" pickOnBounds="true" preserveRatio="true" />
+		<ImageView fx:id="imageView1" fitHeight="500" fitWidth="500" layoutX="510" layoutY="0" pickOnBounds="true" preserveRatio="true" />
+	</Pane>
+	<!-- end image -->
+	
+	<!-- extra -->
+	<Pane layoutX="20" layoutY="650">
+		<Label fx:id="extraMsgLbl0" layoutX="0" layoutY="0" text="0" />
+	</Pane>
+	<!-- end extra -->
+</Pane>
+
+<!-- 
+	public short[] motor = new short[8];
+    public short[] rc = new short[8];
+    public short[] servo = new short[8];
+    public short[] att = new short[3];
+    public int altEstAlt;
+    public short altVario;
+    public int altHold;
+    public boolean ok_to_arm;
+    public boolean angle_mode;
+    public boolean armed;
+    public boolean baro_mode;
+    
+    public short sonarFront;
+    public short sonarLeft;
+    public short sonarRight;
+ -->
