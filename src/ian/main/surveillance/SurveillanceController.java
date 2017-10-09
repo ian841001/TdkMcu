@@ -16,7 +16,6 @@ import javax.xml.ws.WebServiceException;
 import com.sun.xml.internal.ws.Closeable;
 
 import ian.main.MainStart;
-import ian.main.mcu.MCU;
 
 public class SurveillanceController implements Closeable {
 	public static final int LISTEN_PORT = 5987;
@@ -86,35 +85,18 @@ public class SurveillanceController implements Closeable {
 			}
 		}
 		
+		private byte[] obj2ByteArray(Object obj) throws IOException {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+		    ObjectOutputStream os = new ObjectOutputStream(out);
+		    os.writeObject(obj);
+		    return out.toByteArray();
+		}
+		
 		private void processCmd(byte cmd) throws IOException {
 			byte[] data;
 			switch (cmd) {
 			case Cmd.CMD_GET_INFO:
-				data = MainStart.info.getAll();
-				break;
-			case Cmd.CMD_GET_CAPTURE_EXTRA_INFO:
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-			    ObjectOutputStream os = new ObjectOutputStream(out);
-			    os.writeObject(MainStart.captureExtraInfo);
-				data = out.toByteArray();
-				break;
-			case Cmd.CMD_GET_RPI_INFO:
-				ByteBuffer buffer = ByteBuffer.allocate(45).order(ByteOrder.LITTLE_ENDIAN);
-				buffer.putInt(MCU.step).putInt(MCU.setWantAlt);
-				buffer.putInt(MainStart.cycleTime).put((byte)MainStart.msgStruct.level);
-				buffer.putInt(MainStart.debug0).putInt(MainStart.debug1);
-				buffer.putInt(MainStart.debug2).putInt(MainStart.debug3);
-				buffer.putInt(MainStart.debug4).putInt(MainStart.debug5);
-				buffer.putInt(MainStart.debug6).putInt(MainStart.debug7);
-				
-				
-				data = buffer.array();
-				break;
-			case Cmd.CMD_GET_MSG:
-				data = MainStart.msgStruct.msgStr.getBytes();
-				break;
-			case Cmd.CMD_GET_EXTRA_MSG:
-				data = MainStart.extraMsg.getBytes();
+				data = obj2ByteArray(MainStart.info);
 				break;
 			case Cmd.CMD_SET_STATUS:
 				data = new byte[]{0};

@@ -16,16 +16,16 @@ public class CaptureAdapter {
 		System.loadLibrary("CaptureCpp");
 	}
 	
-	private native boolean nativeSetup();
-	private native double[] nativeLoop();
-	private native boolean nativeClose();
+	private native boolean nativeSetup(int mode);
+	private native short[] nativeLoop();
+	private native boolean nativeClose(int mode);
 	
 	
 	
 	public CaptureAdapter setup() throws IOException {
 		if (isSkip) return this;
 		print("Setup start...");
-		if (!nativeSetup()) {
+		if (!nativeSetup(0)) {
 			print("Setup fail...");
 			throw new IOException("Setup failed...");
 		}
@@ -38,7 +38,7 @@ public class CaptureAdapter {
 	public void close() throws IOException {
 		if (isSkip) return;
 		print("Closing...");
-		if (!nativeClose()) {
+		if (!nativeClose(0)) {
 			print("Close failed...");
 			throw new IOException("Close failed...");
 		}

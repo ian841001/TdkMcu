@@ -10,7 +10,7 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
-import ian.main.mcu.MwcData;
+import ian.main.AllData;
 
 public class LedAndOtherController {
 	public static final boolean isSkip = false;
@@ -63,7 +63,7 @@ public class LedAndOtherController {
 		return this;
 	}
 	public byte[] getSonar() throws IOException {
-		byte[] data = new byte[MwcData.OTHER_DATA_LEN];
+		byte[] data = new byte[AllData.OTHER_DATA_LEN];
 		if (isSkip) return data;
 		i2cDevice.read(data, 0, data.length);
 		return data;

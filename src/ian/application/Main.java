@@ -2,6 +2,7 @@ package ian.application;
 	
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import ian.main.AllData;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -13,7 +14,7 @@ import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 
-	public static MwcData info = new MwcData();
+	public static AllData info = new AllData();
 	public static McuSocket mcuSocket = new McuSocket();
 	public static ScheduledThreadPoolExecutor s;
 	

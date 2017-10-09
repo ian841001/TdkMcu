@@ -78,6 +78,12 @@
 	</Pane>
 	
 	<Pane layoutX="1050" layoutY="0">
+		<!-- tempature -->
+		<Pane layoutX="300" layoutY="10">
+			<Label fx:id="tempatureLbl" layoutX="0" layoutY="0" text="47.8'C"><font><Font size="20"/></font></Label> 
+		</Pane>
+		<!-- end tempature -->
+		
 		<!-- motor -->
 		<Pane layoutX="0" layoutY="40">
 			<Pane layoutX="0" layoutY="0">
@@ -159,7 +165,7 @@
 		
 		<!-- alt -->
 		<Pane layoutX="0" layoutY="500">
-			<Label fx:id="altLbl" layoutX="0" layoutY="0" text="100" prefWidth="250"><font><Font size="50.0"/></font></Label>
+			<Label fx:id="altLbl" layoutX="0" layoutY="0" text="100" prefWidth="250"><font><Font size="100.0"/></font></Label>
 			<Label layoutX="250" layoutY="0" text="cm"><font><Font size="100.0"/></font></Label>
 		</Pane>
 		<!-- end alt -->

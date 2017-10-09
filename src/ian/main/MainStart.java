@@ -8,11 +8,7 @@ import javax.xml.ws.WebServiceException;
 import com.pi4j.io.gpio.exception.UnsupportedBoardType;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
-import ian.main.capture.struct.ExtraPic;
 import ian.main.mcu.MCU;
-import ian.main.mcu.MCU.MsgIndex;
-import ian.main.mcu.MCU.MsgIndex.MsgStruct;
-import ian.main.mcu.MwcData;
 import ian.main.mcu.MwcSetData;
 import ian.main.surveillance.SurveillanceController;
 
@@ -22,7 +18,7 @@ public class MainStart {
 	public static final String CMD_EXIT = "q";
 	public static final int BUFFER_SIZE = CMD_EXIT.length();
 	
-	public static MwcData info = new MwcData();
+	public static AllData info = new AllData();
 	public static MwcSetData setRc = new MwcSetData();
 
 	
@@ -30,14 +26,7 @@ public class MainStart {
 	
 	public static byte[] extraInfo = new byte[8];
 	
-	public static int cycleTime;
-	public static int debug0, debug1, debug2, debug3, debug4, debug5, debug6, debug7;
 	
-	public static MsgStruct msgStruct = MsgIndex.POWER_OFF;
-	
-	
-	public static String extraMsg = "";
-	public static ExtraPic captureExtraInfo = new ExtraPic();
 	
 	private static void print(String info) {
 		MainStart.print("Main", info);
@@ -67,7 +56,7 @@ public class MainStart {
 					}
 				}
 				long time2 = new Date().getTime();
-				cycleTime = (int) (time2 - time);
+				info.cycleTime = (int) (time2 - time);
 				time = time2;
 			}
 			print("Close.");
@@ -86,6 +75,13 @@ public class MainStart {
 //			e.printStackTrace();
 //		}
 //		JniTest.test();
+//		try {
+//			for (int i = 0; i < 50; i++)
+//			System.out.println(TempatureAdapter.getTemp());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		System.exit(0);
 	}
 	

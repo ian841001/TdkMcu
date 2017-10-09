@@ -1,7 +1,9 @@
 package ian.application;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -40,6 +42,10 @@ public class McuSocket {
 		if (is != null) is.close();
 		if (os != null) os.close();
 		if (sc != null) sc.close();
+	}
+	
+	public Object cmdObj(byte cmd) throws IOException, ClassNotFoundException {
+	    return new ObjectInputStream(new ByteArrayInputStream(cmd(cmd))).readObject();
 	}
 	
 	public byte[] cmd(byte cmd) throws IOException {

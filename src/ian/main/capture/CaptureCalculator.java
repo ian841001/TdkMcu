@@ -85,7 +85,7 @@ public class CaptureCalculator {
 		for (Point p : finalPoint) {
 			ep.addBlueCircle((short)p.x, (short)p.y, (short)10);
 		}
-		MainStart.captureExtraInfo = ep;
+		MainStart.info.captureExtraInfo = ep;
 //		ps.printf("%s %s %s %s", R, T, L, B);
 		
 //		BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_3BYTE_BGR);
@@ -302,11 +302,11 @@ public class CaptureCalculator {
 			deltaX = (int) Math.round(intersectionPoint.x) - 250;
 			deltaY = (int) Math.round(intersectionPoint.y) - 250;
 			angle = lines1.get(0).getAngle();
-			MainStart.extraMsg = "ok";
+			MainStart.info.extraMsg = "ok";
 		} catch(Exception e) {
 			StringWriter errors = new StringWriter();
 			e.printStackTrace(new PrintWriter(errors));
-			MainStart.extraMsg = errors.toString();
+			MainStart.info.extraMsg = errors.toString();
 //			e.printStackTrace();
 			
 			status = 0;
@@ -314,7 +314,7 @@ public class CaptureCalculator {
 			deltaY = 0;
 			angle = 0;
 		}
-		MainStart.captureExtraInfo = ep;
+		MainStart.info.captureExtraInfo = ep;
 		
 		
 		

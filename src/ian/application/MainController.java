@@ -3,16 +3,12 @@ package ian.application;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import ian.main.capture.struct.ExtraPic;
+import ian.main.AllData;
 import ian.main.surveillance.Cmd;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -75,6 +71,8 @@ public class MainController implements Initializable {
 	
 	@FXML Label mcuModeLbl0, mcuModeLbl1, mcuModeLbl2, mcuModeLbl3;
 	
+	@FXML Label tempatureLbl;
+	
 	
 	private BufferedImage bufferedImage = new BufferedImage(500,  500, BufferedImage.TYPE_INT_ARGB);
 	private Graphics2D g = bufferedImage.createGraphics();
@@ -82,16 +80,16 @@ public class MainController implements Initializable {
 	
 	private Repeater repeater;
 	
-	private int cycleTime;
-	private int step, setWantAlt;
-	
-	private byte level;
-	private int[] debug = new int[8];
+//	private int cycleTime;
+//	private int step, setWantAlt;
+//	
+//	private byte level;
+//	private int[] debug = new int[8];
 	private byte[] extraInfo = new byte[8];
 	
 	
-	private String msgStr = "message from rpi";
-	private String extraMsgStr = "message from rpi";
+//	private String msgStr = "message from rpi";
+//	private String extraMsgStr = "message from rpi";
 	
 	
 	
@@ -135,10 +133,10 @@ public class MainController implements Initializable {
 				
 				
 				
-				rpiLbl1.setText(String.valueOf(step));
-				rpiLbl2.setText(String.valueOf(setWantAlt));
+				rpiLbl1.setText(String.valueOf(Main.info.step));
+				rpiLbl2.setText(String.valueOf(Main.info.setWantAlt));
 				rpiLbl3.setText(String.valueOf(Main.info.altHold));
-				rpiLbl4.setText(String.valueOf(cycleTime));
+				rpiLbl4.setText(String.valueOf(Main.info.cycleTime));
 				
 				
 				for (int i = 0; i < mwcLblDebug.length; i++) {
@@ -146,18 +144,25 @@ public class MainController implements Initializable {
 				}
 				
 				for (int i = 0; i < rpiLblDebug.length; i++) {
-					rpiLblDebug[i].setText(String.valueOf(debug[i]));
+					rpiLblDebug[i].setText(String.valueOf(Main.info.rpiDebug[i]));
 				}
 				
 				
-				msgLbl.setStyle("-fx-background-color: " + (new String[]{"#66FF66", "#FFFF00", "#FF8080"}[level]));
-				msgLbl.setText(msgStr);
+				msgLbl.setStyle("-fx-background-color: " + (new String[]{"#66FF66", "#FFFF00", "#FF8080"}[Main.info.msgStruct.level]));
+				msgLbl.setText(Main.info.msgStruct.msgStr);
 				
-				extraMsgLbl0.setText(extraMsgStr);
+				tempatureLbl.setText(String.format("%.1f'C", (float)Main.info.tempature / 10));
+				
+				extraMsgLbl0.setText(Main.info.extraMsg);
 				
 				for (int i = 0; i < extraInfoLbl.length; i++) {
 					extraInfoLbl[i].setText(String.valueOf(extraInfo[i]));
 				}
+				
+				g.setColor(Color.BLACK);
+				g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+				Main.info.captureExtraInfo.draw(g);
+				image[0] = SwingFXUtils.toFXImage(bufferedImage, null);
 				
 				
 				
@@ -271,40 +276,8 @@ public class MainController implements Initializable {
 			@Override
 			public void run() {
 				try {
-					Main.info.setAll(Main.mcuSocket.cmd(Cmd.CMD_GET_INFO));
-					
-					
-					
-					ByteBuffer buffer = ByteBuffer.wrap(Main.mcuSocket.cmd(Cmd.CMD_GET_RPI_INFO)).order(ByteOrder.LITTLE_ENDIAN);
-					step = buffer.getInt();
-					setWantAlt = buffer.getInt();
-					cycleTime = buffer.getInt();
-					level = buffer.get();
-					for (int i = 0; i < debug.length; i++) {
-						debug[i] = buffer.getInt();
-					}
-					
-					
-					
-					
-					msgStr = new String(Main.mcuSocket.cmd(Cmd.CMD_GET_MSG));
-					extraMsgStr = new String(Main.mcuSocket.cmd(Cmd.CMD_GET_EXTRA_MSG));
-					
-					
-					
-					
-					ByteBuffer byteBuffer = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN);
-					for (int i = 0; i < extraInfoTxt.length; i++) {
-						byteBuffer.put(extraInfo[i]);
-					}
-					Main.mcuSocket.cmd(Cmd.CMD_SET_STATUS, byteBuffer.array());
-					
-					
-					
-					captureExtra();
-					
-					
-					
+				    Main.info = ((AllData)Main.mcuSocket.cmdObj(Cmd.CMD_GET_INFO));
+					Main.mcuSocket.cmd(Cmd.CMD_SET_STATUS, extraInfo);
 					updateGui();
 				} catch (IOException | ClassNotFoundException e) {
 					e.printStackTrace();
@@ -314,20 +287,6 @@ public class MainController implements Initializable {
 		});
 	}
 	
-	public void captureExtra() throws IOException, ClassNotFoundException {
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
-		
-		ByteArrayInputStream in = new ByteArrayInputStream(Main.mcuSocket.cmd(Cmd.CMD_GET_CAPTURE_EXTRA_INFO));
-	    ObjectInputStream is = new ObjectInputStream(in);
-	    ((ExtraPic)is.readObject()).draw(g);
-		
-		// new ExtraPic().setByteArray(Main.mcuSocket.cmd(Cmd.CMD_GET_CAPTURE_EXTRA_INFO)).draw(g);
-		
-		
-		
-		image[0] = SwingFXUtils.toFXImage(bufferedImage, null);
-	}
 	
 	static abstract class MyChangeListener implements ChangeListener<Boolean> {
 		protected final int index;
