@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import ian.main.capture.struct.ExtraPic;
 import ian.main.mcu.MCU.MsgIndex;
 import ian.main.mcu.MCU.MsgIndex.MsgStruct;
 
@@ -62,7 +61,8 @@ public class AllData implements Serializable {
 	
 	
 	public String extraMsg = "";
-	public ExtraPic captureExtraInfo = new ExtraPic();
+//	public ExtraPic captureExtraInfo = new ExtraPic();
+	public short[] captureExtraInfo;
     
     public AllData setData(byte[] data) {
     	if (data.length != DATA_LEN) {

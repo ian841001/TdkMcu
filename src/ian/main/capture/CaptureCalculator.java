@@ -85,7 +85,7 @@ public class CaptureCalculator {
 		for (Point p : finalPoint) {
 			ep.addBlueCircle((short)p.x, (short)p.y, (short)10);
 		}
-		MainStart.info.captureExtraInfo = ep;
+//		MainStart.info.captureExtraInfo = ep;
 //		ps.printf("%s %s %s %s", R, T, L, B);
 		
 //		BufferedImage bufferedImage = new BufferedImage(500, 500, BufferedImage.TYPE_3BYTE_BGR);
@@ -314,7 +314,7 @@ public class CaptureCalculator {
 			deltaY = 0;
 			angle = 0;
 		}
-		MainStart.info.captureExtraInfo = ep;
+//		MainStart.info.captureExtraInfo = ep;
 		
 		
 		
@@ -357,7 +357,7 @@ public class CaptureCalculator {
 		// System.out.printf("%6.0f %6d %6d\n", angle, angle2, delta);
 	}
 	
-	private static double fixCircle(double angle, int rate) {
+	static double fixCircle(double angle, int rate) {
 		while (angle <= -180 * rate) {
 			angle += 360 * rate;
 		}
@@ -366,7 +366,7 @@ public class CaptureCalculator {
 		}
 		return angle;
 	}
-	private static int fixCircle(int angle, int rate) {
+	static int fixCircle(int angle, int rate) {
 		return (int)fixCircle((double)angle, rate);
 	}
 	

@@ -127,8 +127,8 @@ public class MCU implements Closeable {
 			info.step = 1;
 			info.armMode = ControlMode.STOP;
 			info.baroMode = ControlMode.STOP;
-//			info.yawMode = ControlMode.STOP;
-//			info.rpMode = ControlMode.STOP;
+			info.yawMode = ControlMode.WORK;
+			info.rpMode = ControlMode.WORK;
 			MainStart.info.msgStruct = MsgIndex.STOP;
 			
 			
@@ -204,6 +204,8 @@ public class MCU implements Closeable {
 		case 15:
 			createTimer();
 			info.step = 16;
+			info.yawMode = ControlMode.WORK;
+			info.rpMode = ControlMode.WORK;
 			break;
 		case 16:
 			if (btn) {
@@ -211,8 +213,8 @@ public class MCU implements Closeable {
 				info.yawMode = ControlMode.RELEASE;
 				info.rpMode = ControlMode.RELEASE;
 			}
-			info.yawMode = info.extraRc[0] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
-			info.rpMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
+//			info.yawMode = info.extraRc[0] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
+//			info.rpMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
 			break;
 		case 100: // 終點降落
 			info.setWantAlt = 0;
@@ -292,7 +294,7 @@ public class MCU implements Closeable {
 		case ControlMode.WORK:
 			int tmp;
 			
-			tmp = (int) (1500 - getCm(info.captureDeltaX) * 1);
+			tmp = (int) (1500 - getCm(info.captureDeltaX) * MainStart.extraInfo[0]);
 			if (tmp > 1900) {
 				tmp = 1900;
 			}
@@ -301,7 +303,7 @@ public class MCU implements Closeable {
 			}
 			setRc.setRoll(tmp);
 			
-			tmp = (int) (1500 + getCm(info.captureDeltaY) * 1);
+			tmp = (int) (1500 + getCm(info.captureDeltaY) * MainStart.extraInfo[0]);
 			if (tmp > 1900) {
 				tmp = 1900;
 			}
@@ -388,6 +390,9 @@ public class MCU implements Closeable {
 		System.out.printf("%5d , ", printTime2 - printTime1);
 		printTime1 = printTime2;
 	}
+	public static void printEnter() {
+		System.out.println();
+	}
 	
 	public boolean loop() {
 		
@@ -465,15 +470,20 @@ public class MCU implements Closeable {
 			info.rpMode = ControlMode.RELEASE;
 		}
 		
-//		MainStart.debug0 = setRc.getRoll();
-//		MainStart.debug1 = setRc.getPitch();
-//		MainStart.debug2 = setRc.getYaw();
+		info.rpiDebug[0] = setRc.getRoll();
+		info.rpiDebug[1] = setRc.getPitch();
+		info.rpiDebug[2] = setRc.getYaw();
 		
-		setRc.setRoll(0);
-		setRc.setPitch(0);
+		
+		if (info.extraRc[2] < 1500) {
+			setRc.setRoll(0);
+			setRc.setPitch(0);
+		}
 		setRc.setYaw(0);
 		
 		
+		info.rpiDebug[4] = (int) getCm(info.captureDeltaX);
+		info.rpiDebug[5] = (int) getCm(info.captureDeltaY);
 		
 		
 		
@@ -522,6 +532,6 @@ public class MCU implements Closeable {
 		
 	}
 	public static double getCm(short pixel) {
-		return pixel * (info.altEstAlt + 6) / 535.6;
+		return pixel * (info.altEstAlt + 7) / 535.6;
 	}
 }

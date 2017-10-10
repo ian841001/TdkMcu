@@ -1,5 +1,6 @@
 package ian.application;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -159,10 +160,64 @@ public class MainController implements Initializable {
 					extraInfoLbl[i].setText(String.valueOf(extraInfo[i]));
 				}
 				
-				g.setColor(Color.BLACK);
-				g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
-				Main.info.captureExtraInfo.draw(g);
+				
+				
+				int index = 0;
+				short[] data = Main.info.captureExtraInfo;
+				int len;
+				
+				try {
+					g.setStroke(new BasicStroke(1));
+					g.setColor(Color.BLACK);
+					g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+					
+					g.setColor(Color.WHITE);
+					len = data[index++];
+					for (int i = 0; i < len; i++) {
+						g.drawRect(data[index++], data[index++], 1, 1);
+					}
+					
+					g.setStroke(new BasicStroke(3));
+					g.setColor(Color.GREEN);
+					len = data[index++];
+					for (int i = 0; i < len; i++) {
+						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					}
+					
+					g.setColor(Color.RED);
+					len = data[index++];
+					for (int i = 0; i < len; i++) {
+						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					}
+					
+					g.setStroke(new BasicStroke(1));
+					g.setColor(Color.YELLOW);
+					len = data[index++];
+					for (int i = 0; i < len; i++) {
+						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					}
+					
+					g.setStroke(new BasicStroke(3));
+					g.setColor(Color.BLUE);
+					len = data[index++];
+					for (int i = 0; i < len; i++) {
+						short x = data[index++];
+						short y = data[index++];
+						short r = data[index++];
+						g.drawOval(x - r, y - r, 2 * r, 2 * r);
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					g.setColor(Color.DARK_GRAY);
+					g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
+				}
+				
+				
+				
+				
 				image[0] = SwingFXUtils.toFXImage(bufferedImage, null);
+				
+				
+				
 				
 				
 				
