@@ -44,8 +44,11 @@ public class AllData implements Serializable {
     public short captureDeltaY;
     public short captureAngle;
     
+    public short takeOffHeading;
+    public short wantHeading;
 
-    public byte rpMode;
+    public byte rollMode;
+    public byte pitchMode;
     public byte yawMode;
     public byte armMode;
     public byte baroMode;

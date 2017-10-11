@@ -37,8 +37,6 @@ public class MCU implements Closeable {
 	
 	
 	
-	static int ledStep = 0;
-	
 	
 
 	
@@ -69,10 +67,11 @@ public class MCU implements Closeable {
 	static int pyError = 0;
 	// ------------------error flag-----------------
 	
+	static long rollModeLastTime;
+	static long rollModePreX;
+	static double[] rollModeVShouldBe;
 	
-	// ------------------mode flag------------------
-	static int ledMode = 0;
-	// ------------------mode flag------------------
+	
 	
 	static boolean pwr = false;
 	static boolean btn = false;
@@ -121,24 +120,26 @@ public class MCU implements Closeable {
 	}
 	
 	
-	static void stl() {
+	private void stl() {
 		switch (info.step) {
 		case 0:
 			info.step = 1;
 			info.armMode = ControlMode.STOP;
 			info.baroMode = ControlMode.STOP;
-			info.yawMode = ControlMode.WORK;
-			info.rpMode = ControlMode.WORK;
+			info.yawMode = ControlMode.STOP;
+			info.rollMode = ControlMode.STOP;
+			info.pitchMode = ControlMode.STOP;
 			MainStart.info.msgStruct = MsgIndex.STOP;
 			
-			
-//			info.yawMode = ControlMode.WORK;
-//			info.rpMode = ControlMode.WORK;
+
+			info.rollMode = ControlMode.WORK;
+			info.takeOffHeading = info.att[2];
 			break;
 		case 1:
 			if (btn) {
 				info.step = 2;
 				info.msgStruct = MsgIndex.RUN;
+				info.wantHeading = 0;
 			}
 //			info.yawMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
 //			info.rpMode = info.extraRc[2] > 1300 ? ControlMode.WORK : ControlMode.RELEASE;
@@ -205,13 +206,13 @@ public class MCU implements Closeable {
 			createTimer();
 			info.step = 16;
 			info.yawMode = ControlMode.WORK;
-			info.rpMode = ControlMode.WORK;
+			info.rollMode = ControlMode.WORK;
 			break;
 		case 16:
 			if (btn) {
 				info.step = 100;
 				info.yawMode = ControlMode.RELEASE;
-				info.rpMode = ControlMode.RELEASE;
+				info.rollMode = ControlMode.RELEASE;
 			}
 //			info.yawMode = info.extraRc[0] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
 //			info.rpMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
@@ -242,7 +243,7 @@ public class MCU implements Closeable {
 			break;
 		}
 	}
-	void mode() {
+	private void mode() {
 		
 		setRc.setAux1(choose(info.armMode , 0, 0, 1098, 1898));
 		
@@ -268,87 +269,90 @@ public class MCU implements Closeable {
 			setRc.setYaw(1500);
 			break;
 		case ControlMode.WORK:
-			int tmp = (int) (1500 + info.captureAngle * 0.1);
-			if (tmp > 1900) {
-				tmp = 1900;
+			info.wantHeading = (short) (MainStart.extraInfo[2]);
+			
+			int offset = info.att[2] + info.wantHeading - info.takeOffHeading;
+			if (offset <= -180) {
+				offset += 360;
 			}
-			if (tmp < 1100) {
-				tmp = 1100;
+			if (offset > 180) {
+				offset -= 360;
 			}
-			setRc.setYaw(tmp);
+			offset *= -10;
+			
+			if (offset > 400) {
+				offset = 400;
+			}
+			if (offset < -400) {
+				offset = -400;
+			}
+			setRc.setYaw(1500 + offset);
 			break;
 		default:
 			setRc.setYaw(0);
 			break;
 		}
 		
-		switch (info.rpMode) {
+		switch (info.rollMode) {
 		case ControlMode.RELEASE:
 			setRc.setRoll(0);
-			setRc.setPitch(0);
 			break;
 		case ControlMode.STOP:
 			setRc.setRoll(1500);
-			setRc.setPitch(1500);
 			break;
 		case ControlMode.WORK:
-			int tmp;
+			long time = getTime();
+			double vShouldBe = getShouldBe(info.captureDeltaX);
+			double vCurrent = (double)(info.captureDeltaX - rollModePreX) / (time - rollModeLastTime);
+			rollModePreX = info.captureDeltaX;
+			rollModeLastTime = time;
+			int offset = (int) ((vShouldBe - vCurrent) * -500);
 			
-			tmp = (int) (1500 - getCm(info.captureDeltaX) * MainStart.extraInfo[0]);
-			if (tmp > 1900) {
-				tmp = 1900;
-			}
-			if (tmp < 1100) {
-				tmp = 1100;
-			}
-			setRc.setRoll(tmp);
+			info.rpiDebug[4] = (int) (vShouldBe * 1000000);
+			info.rpiDebug[5] = (int) (vCurrent * 1000000);
+			info.rpiDebug[6] = offset;
 			
-			tmp = (int) (1500 + getCm(info.captureDeltaY) * MainStart.extraInfo[0]);
-			if (tmp > 1900) {
-				tmp = 1900;
+			
+
+			if (offset > 400) {
+				offset = 400;
 			}
-			if (tmp < 1100) {
-				tmp = 1100;
+			if (offset < -400) {
+				offset = -400;
 			}
-			setRc.setPitch(tmp);
+			
+			setRc.setRoll(1500 + offset);
+			
 			break;
 		default:
 			setRc.setRoll(0);
+			break;
+		}
+		
+		switch (info.pitchMode) {
+		case ControlMode.RELEASE:
+			setRc.setPitch(0);
+			break;
+		case ControlMode.STOP:
+			setRc.setPitch(1500);
+			break;
+		case ControlMode.WORK:
+			
+			
+			break;
+		default:
 			setRc.setPitch(0);
 			break;
 		}
 		
-		
-		switch (ledMode) {
-		case 1:
-			loc.setAllLed(Color.BLACK);
-			if (getTime() - ledStepTime > 200) {
-				ledStepTime = getTime();
-				loc.setLed(ledStep, Color.RED);
-				if (++ledStep >= 2) {
-					ledStep = 0;
-				}
-			}
-			break;
-		case 2:
-			loc.setAllLed(Color.GREEN);
-			break;
-		case 3:
-			loc.setLed(0, Color.GREEN).setLed(1, Color.RED);
-			break;
-		default:
-			loc.setAllLed(Color.BLACK);
-			break;
-		}
-		
 	}
-	
-	static long time;
-	static void createTimer() {
-		time = getTime();
+
+	private long timerTime;
+	private void createTimer() {
+		timerTime = getTime();
 	}
-	static boolean timerOn(long millis) {
-		return getTime() - time >= millis;
+	private boolean timerOn(long millis) {
+		return getTime() - timerTime >= millis;
 	}
 	
 	static long getTime() {
@@ -356,37 +360,18 @@ public class MCU implements Closeable {
 	}
 	
 	
-	void extra() {
-		
-		
-//		yawFixAngle = MainStart.extraInfo[0] - info.att[2];
-//		
-//		if (yawFixAngle < -180) {
-//			yawFixAngle += 360;
-//		}
-//		if (yawFixAngle > 180) {
-//			yawFixAngle -= 360;
-//		}
-		
-//		MainStart.debug0 = MainStart.extraInfo[0];
-//		MainStart.debug1 = info.att[2];
-//		
-//		MainStart.debug2 = yawFixAngle;
-//		
-//		MainStart.debug3 = yawMode;
-	}
-	
-	
 	public MCU setup() throws UnsupportedBoardType, IOException, InterruptedException, UnsupportedBusNumberException {
 		ca = new CaptureAdapter().setup();
 		mwc = new MwcSerialAdapter().open();
 		loc = new LedAndOtherController().init();
+		preShouldBe();
+		printTime1 = getTime();
 		return this;
 	}
 	
-	static long printTime1 = new Date().getTime();
+	static long printTime1;
 	public static void printTime() {
-		long printTime2 = new Date().getTime();
+		long printTime2 = getTime();
 		System.out.printf("%5d , ", printTime2 - printTime1);
 		printTime1 = printTime2;
 	}
@@ -446,9 +431,6 @@ public class MCU implements Closeable {
 		
 		
 		
-		extra();
-		
-		
 		pwr = info.extraRc[1] > 1300;
 		btn = info.extraRc[1] > 1700;
 		
@@ -467,7 +449,8 @@ public class MCU implements Closeable {
 			info.armMode = ControlMode.RELEASE;
 			info.baroMode = ControlMode.RELEASE;
 			info.yawMode = ControlMode.RELEASE;
-			info.rpMode = ControlMode.RELEASE;
+			info.rollMode = ControlMode.RELEASE;
+			info.pitchMode = ControlMode.RELEASE;
 		}
 		
 		info.rpiDebug[0] = setRc.getRoll();
@@ -477,14 +460,17 @@ public class MCU implements Closeable {
 		
 		if (info.extraRc[2] < 1500) {
 			setRc.setRoll(0);
-			setRc.setPitch(0);
 		}
 		setRc.setYaw(0);
+		setRc.setPitch(0);
 		
 		
-		info.rpiDebug[4] = (int) getCm(info.captureDeltaX);
-		info.rpiDebug[5] = (int) getCm(info.captureDeltaY);
 		
+		try {
+			loc.setLed(0, info.captureStatus != 0 ? Color.GREEN : Color.RED).updateLed();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		
 		
@@ -499,11 +485,11 @@ public class MCU implements Closeable {
 			}
 			return false;
 		}
-		try {
-			loc.updateLed();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			loc.updateLed();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 		return true;
 	}
@@ -523,7 +509,7 @@ public class MCU implements Closeable {
 			e.printStackTrace();
 		}
 		try {
-			loc.close();
+			loc.setAllLed(Color.BLACK).updateLed().close();
 		} catch (IOException e) {
 			print("[Close]: [loc]:");
 			e.printStackTrace();
@@ -531,7 +517,24 @@ public class MCU implements Closeable {
 		
 		
 	}
-	public static double getCm(short pixel) {
-		return pixel * (info.altEstAlt + 7) / 535.6;
+	public static double getMm(short pixel) {
+		return pixel * (info.altEstAlt + 5.5) / 54.16;
 	}
+	
+	private static void preShouldBe() {
+		rollModeVShouldBe = new double[500];
+		for (int i = 0; i < rollModeVShouldBe.length; i++) {
+			rollModeVShouldBe[i] = Math.pow(i - 250, 3) / 1000000;
+			if (rollModeVShouldBe[i] > 0.15) {
+				rollModeVShouldBe[i] = 0.15;
+			}
+			if (rollModeVShouldBe[i] < -0.15) {
+				rollModeVShouldBe[i] = -0.15;
+			}
+		}
+	}
+	private static double getShouldBe(int deltaX) {
+		return rollModeVShouldBe[deltaX + 250];
+	}
+	
 }

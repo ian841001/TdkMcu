@@ -13,8 +13,8 @@ import java.nio.ByteOrder;
 public class McuSocket {
 //	public static final String DEFAULT_IP = "127.0.0.1";
 //	public static final String DEFAULT_IP = "192.168.2.2";
-//	public static final String DEFAULT_IP = "192.168.43.63";
-	public static final String DEFAULT_IP = "140.118.48.160";
+	public static final String DEFAULT_IP = "192.168.43.63";
+//	public static final String DEFAULT_IP = "140.118.48.160";
 	
 	public static final int DEFAULT_PORT = 5987;
 	

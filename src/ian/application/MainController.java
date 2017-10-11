@@ -47,7 +47,7 @@ public class MainController implements Initializable {
 	
 	@FXML Label modeLbl1, modeLbl2, modeLbl3, modeLbl4;
 	
-	@FXML Label rpiLbl1, rpiLbl2, rpiLbl3, rpiLbl4;
+	@FXML Label rpiLbl1, rpiLbl2, rpiLbl3, rpiLbl4, rpiLbl5, rpiLbl6, rpiLbl7;
 	
 	@FXML Label mwcLblDebug0, mwcLblDebug1, mwcLblDebug2, mwcLblDebug3;
 	Label[] mwcLblDebug;
@@ -70,7 +70,7 @@ public class MainController implements Initializable {
 	
 	@FXML Label extraMsgLbl0;
 	
-	@FXML Label mcuModeLbl0, mcuModeLbl1, mcuModeLbl2, mcuModeLbl3;
+	@FXML Label mcuModeLbl0, mcuModeLbl1, mcuModeLbl2, mcuModeLbl3, mcuModeLbl4;
 	
 	@FXML Label tempatureLbl;
 	
@@ -127,10 +127,11 @@ public class MainController implements Initializable {
 				modeLbl4.setStyle("-fx-background-color: " + (Main.info.baro_mode  ? "green" : "red"));
 				altLbl.setStyle("-fx-background-color: " + (Main.info.isSonarOk  ? "green" : "red"));
 				
-				mcuModeLbl0.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.armMode ]));
-				mcuModeLbl1.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.baroMode]));
-				mcuModeLbl2.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.yawMode ]));
-				mcuModeLbl3.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.rpMode  ]));
+				mcuModeLbl0.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.armMode  ]));
+				mcuModeLbl1.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.baroMode ]));
+				mcuModeLbl2.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.yawMode  ]));
+				mcuModeLbl3.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.rollMode ]));
+				mcuModeLbl4.setStyle("-fx-background-color: " + (new String[]{"red", "yellow", "green"}[Main.info.pitchMode]));
 				
 				
 				
@@ -138,6 +139,9 @@ public class MainController implements Initializable {
 				rpiLbl2.setText(String.valueOf(Main.info.setWantAlt));
 				rpiLbl3.setText(String.valueOf(Main.info.altHold));
 				rpiLbl4.setText(String.valueOf(Main.info.cycleTime));
+				rpiLbl5.setText(String.valueOf(Main.info.att[2]));
+				rpiLbl6.setText(String.valueOf(Main.info.takeOffHeading));
+				rpiLbl7.setText(String.valueOf(Main.info.wantHeading));
 				
 				
 				for (int i = 0; i < mwcLblDebug.length; i++) {
@@ -171,41 +175,52 @@ public class MainController implements Initializable {
 					g.setColor(Color.BLACK);
 					g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());
 					
-					g.setColor(Color.WHITE);
-					len = data[index++];
-					for (int i = 0; i < len; i++) {
-						g.drawRect(data[index++], data[index++], 1, 1);
+					if (data.length > index) {
+						g.setColor(Color.WHITE);
+						len = data[index++];
+						for (int i = 0; i < len; i++) {
+							g.drawRect(data[index++], data[index++], 1, 1);
+						}
 					}
 					
-					g.setStroke(new BasicStroke(3));
-					g.setColor(Color.GREEN);
-					len = data[index++];
-					for (int i = 0; i < len; i++) {
-						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					if (data.length > index) {
+						g.setStroke(new BasicStroke(3));
+						g.setColor(Color.GREEN);
+						len = data[index++];
+						for (int i = 0; i < len; i++) {
+							g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+						}
 					}
 					
-					g.setColor(Color.RED);
-					len = data[index++];
-					for (int i = 0; i < len; i++) {
-						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					if (data.length > index) {
+						g.setColor(Color.RED);
+						len = data[index++];
+						for (int i = 0; i < len; i++) {
+							g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+						}
 					}
 					
-					g.setStroke(new BasicStroke(1));
-					g.setColor(Color.YELLOW);
-					len = data[index++];
-					for (int i = 0; i < len; i++) {
-						g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+					if (data.length > index) {
+						g.setStroke(new BasicStroke(1));
+						g.setColor(Color.YELLOW);
+						len = data[index++];
+						for (int i = 0; i < len; i++) {
+							g.drawLine(data[index++], data[index++], data[index++], data[index++]);
+						}
 					}
 					
-					g.setStroke(new BasicStroke(3));
-					g.setColor(Color.BLUE);
-					len = data[index++];
-					for (int i = 0; i < len; i++) {
-						short x = data[index++];
-						short y = data[index++];
-						short r = data[index++];
-						g.drawOval(x - r, y - r, 2 * r, 2 * r);
+					if (data.length > index) {
+						g.setStroke(new BasicStroke(3));
+						g.setColor(Color.BLUE);
+						len = data[index++];
+						for (int i = 0; i < len; i++) {
+							short x = data[index++];
+							short y = data[index++];
+							short r = data[index++];
+							g.drawOval(x - r, y - r, 2 * r, 2 * r);
+						}
 					}
+					
 				} catch (ArrayIndexOutOfBoundsException e) {
 					g.setColor(Color.DARK_GRAY);
 					g.fillRect(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight());

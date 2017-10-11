@@ -32,6 +32,12 @@
 			<Label fx:id="rpiLbl3" layoutX="220" layoutY="0" text="200" />
 			<Label layoutX="240" layoutY="0" text="cycleTime = " />
 			<Label fx:id="rpiLbl4" layoutX="320" layoutY="0" text="200" />
+			<Label layoutX="340" layoutY="0" text="realHeading = " />
+			<Label fx:id="rpiLbl5" layoutX="430" layoutY="0" text="200" />
+			<Label layoutX="480" layoutY="0" text="takeOffHeading = " />
+			<Label fx:id="rpiLbl6" layoutX="590" layoutY="0" text="200" />
+			<Label layoutX="630" layoutY="0" text="wantHeading = " />
+			<Label fx:id="rpiLbl7" layoutX="730" layoutY="0" text="200" />
 			
 			<Label fx:id="rpiLblDebug0" layoutX="0" layoutY="20" text="200" />
 			<Label fx:id="rpiLblDebug1" layoutX="100" layoutY="20" text="200" />
@@ -79,7 +85,7 @@
 	
 	<Pane layoutX="1050" layoutY="0">
 		<!-- tempature -->
-		<Pane layoutX="300" layoutY="10">
+		<Pane layoutX="350" layoutY="10">
 			<Label fx:id="tempatureLbl" layoutX="0" layoutY="0" text="47.8'C"><font><Font size="20"/></font></Label> 
 		</Pane>
 		<!-- end tempature -->
@@ -203,7 +209,8 @@
 			<Label fx:id="mcuModeLbl0" layoutX="0" layoutY="0" text="ARM" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
 			<Label fx:id="mcuModeLbl1" layoutX="50" layoutY="0" text="BAR" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
 			<Label fx:id="mcuModeLbl2" layoutX="100" layoutY="0" text="YAW" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
-			<Label fx:id="mcuModeLbl3" layoutX="150" layoutY="0" text="R&amp;P" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="mcuModeLbl3" layoutX="150" layoutY="0" text="ROL" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
+			<Label fx:id="mcuModeLbl4" layoutX="200" layoutY="0" text="PTH" style="-fx-background-color: red;"><font><Font size="20"/></font></Label>
 		</Pane>
 		<!-- end mcu mode -->
 		

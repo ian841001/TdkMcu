@@ -3,7 +3,6 @@ package ian.main.capture;
 import java.io.IOException;
 
 import ian.main.MainStart;
-import ian.main.mcu.MCU;
 
 public class CaptureAdapter {
 	public static final boolean isSkip = false;
@@ -18,7 +17,7 @@ public class CaptureAdapter {
 	}
 	
 	private native boolean nativeSetup(int mode);
-	private native short[] nativeLoop();
+	private native short[] nativeLoop(int mode);
 	private native short[] nativeGetData();
 	private native boolean nativeClose(int mode);
 	
@@ -35,11 +34,11 @@ public class CaptureAdapter {
 		return this;
 	}
 	public void loop() throws IOException {
-		MCU.printTime();
-		short[] result = nativeLoop();
-		MCU.printTime();
+//		MCU.printTime();
+		short[] result = nativeLoop(0);
+//		MCU.printTime();
 		MainStart.info.captureExtraInfo = nativeGetData();
-		MCU.printTime();
+//		MCU.printTime();
 		byte status = (byte) result[0];
 		
 		MainStart.info.captureStatus = status;
@@ -67,8 +66,8 @@ public class CaptureAdapter {
 			}
 			MainStart.info.captureAngle = angle;
 		}
-		MCU.printTime();
-		MCU.printEnter();
+//		MCU.printTime();
+//		MCU.printEnter();
 	}
 	public void close() throws IOException {
 		if (isSkip) return;
