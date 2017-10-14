@@ -25,19 +25,9 @@
 		<!-- rpi -->
 		<Pane layoutX="630" layoutY="10">
 			<Label layoutX="0" layoutY="0" text="step = " />
-			<Label fx:id="rpiLbl1" layoutX="40" layoutY="0" text="102" />
-			<Label layoutX="70" layoutY="0" text="altWant = " />
-			<Label fx:id="rpiLbl2" layoutX="130" layoutY="0" text="200" />
-			<Label layoutX="160" layoutY="0" text="altHold = " />
-			<Label fx:id="rpiLbl3" layoutX="220" layoutY="0" text="200" />
-			<Label layoutX="240" layoutY="0" text="cycleTime = " />
-			<Label fx:id="rpiLbl4" layoutX="320" layoutY="0" text="200" />
-			<Label layoutX="340" layoutY="0" text="realHeading = " />
-			<Label fx:id="rpiLbl5" layoutX="430" layoutY="0" text="200" />
-			<Label layoutX="480" layoutY="0" text="takeOffHeading = " />
-			<Label fx:id="rpiLbl6" layoutX="590" layoutY="0" text="200" />
-			<Label layoutX="630" layoutY="0" text="wantHeading = " />
-			<Label fx:id="rpiLbl7" layoutX="730" layoutY="0" text="200" />
+			<Label fx:id="rpiLbl0" layoutX="40" layoutY="0" text="102" />
+			<Label layoutX="70" layoutY="0" text="cycleTime = " />
+			<Label fx:id="rpiLbl1" layoutX="150" layoutY="0" text="200" />
 			
 			<Label fx:id="rpiLblDebug0" layoutX="0" layoutY="20" text="200" />
 			<Label fx:id="rpiLblDebug1" layoutX="100" layoutY="20" text="200" />
@@ -165,7 +155,6 @@
 				<Rectangle fx:id="rcRec8" layoutX="100" layoutY="0" height="30" width="25" style="-fx-fill: #FF8080;" />
 				<Label fx:id="rcLbl8" layoutX="110" layoutY="3.5" text="1000"><font><Font size="20.0"/></font></Label>
 			</Pane>
-			
 		</Pane>
 		<!-- end rc -->
 		
@@ -214,14 +203,29 @@
 		</Pane>
 		<!-- end mcu mode -->
 		
-		
+		<!-- detail -->
+		<Pane layoutX="0" layoutY="730">
+			
+			<Label layoutX="0" layoutY="0" text="altWant = " />
+			<Label fx:id="detailLbl0" layoutX="110" layoutY="0" text="200" />
+			<Label layoutX="0" layoutY="20" text="altHold = " />
+			<Label fx:id="detailLbl1" layoutX="110" layoutY="20" text="200" />
+			<Label layoutX="0" layoutY="40" text="realHeading = " />
+			<Label fx:id="detailLbl2" layoutX="110" layoutY="40" text="200" />
+			<Label layoutX="0" layoutY="60" text="takeOffHeading = " />
+			<Label fx:id="detailLbl3" layoutX="110" layoutY="60" text="200" />
+			<Label layoutX="0" layoutY="80" text="wantHeading = " />
+			<Label fx:id="detailLbl4" layoutX="110" layoutY="80" text="200" />
+			<Label layoutX="0" layoutY="100" text="altBaro = " />
+			<Label fx:id="detailLbl5" layoutX="110" layoutY="100" text="200" />
+		</Pane>
+		<!-- end detail -->
 	</Pane>
 	
 	
 	<!-- image -->
 	<Pane layoutX="20" layoutY="150">
-		<ImageView fx:id="imageView0" fitHeight="500" fitWidth="500" layoutX="0" layoutY="0" pickOnBounds="true" preserveRatio="true" />
-		<ImageView fx:id="imageView1" fitHeight="500" fitWidth="500" layoutX="510" layoutY="0" pickOnBounds="true" preserveRatio="true" />
+		<ImageView fx:id="imageView0" fitHeight="480" fitWidth="640" layoutX="0" layoutY="0" pickOnBounds="true" preserveRatio="true" />
 	</Pane>
 	<!-- end image -->
 	

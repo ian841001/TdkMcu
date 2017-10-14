@@ -48,23 +48,23 @@ public class CaptureAdapter {
 			short angle = result[3];
 			MainStart.info.captureDeltaX = deltaX;
 			MainStart.info.captureDeltaY = deltaY;
-			
-			
-			// angle range : [-18000,18000]
-			
-			
-			int delta = angle - MainStart.info.captureAngle;
-			// delta range : [-36000,36000]
-			delta = CaptureCalculator.fixCircle(delta, 100);
-			// delta range : [-18000,18000]
-			if (Math.abs(delta) > 9000) {
-				if (angle <= 0) {
-					angle += 18000;
-				} else {
-					angle -= 18000;
-				}
-			}
 			MainStart.info.captureAngle = angle;
+//			
+//			// angle range : [-18000,18000]
+//			
+//			
+//			int delta = angle - MainStart.info.captureAngle;
+//			// delta range : [-36000,36000]
+//			delta = CaptureCalculator.fixCircle(delta, 100);
+//			// delta range : [-18000,18000]
+//			if (Math.abs(delta) > 9000) {
+//				if (angle <= 0) {
+//					angle += 18000;
+//				} else {
+//					angle -= 18000;
+//				}
+//			}
+//			MainStart.info.captureAngle = angle;
 		}
 //		MCU.printTime();
 //		MCU.printEnter();

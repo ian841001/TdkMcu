@@ -15,6 +15,7 @@ public class Repeater implements Closeable {
 	private TimerTask tt;
 	
 	private Runnable runnable;
+	private boolean isClosed;
 	
 	public Repeater(Runnable runnable) {
 		this.runnable = runnable;
@@ -27,14 +28,18 @@ public class Repeater implements Closeable {
 		tt = new TimerTask() {
 			@Override
 			public void run() {
-				runnable.run();
+				if (!isClosed) {
+					runnable.run();
+				}
 			}
 		};
 		t = new Timer();
 		t.schedule(tt, 0, PERIOD);
+		isClosed = false;
 	}
 	
 	public void stop() {
+		isClosed = true;
 		if (tt != null) {
 			tt.cancel();
 			tt = null;

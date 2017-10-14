@@ -15,14 +15,15 @@ import ian.main.AllData;
 public class LedAndOtherController {
 	public static final boolean isSkip = false;
 	
-	private static final int LED_COUNT = 2;
+	private static final int LED_COUNT = 1;
 	private static final byte I2C_ADDR = 0x12;
 	
 	private I2CBus i2c;
 	private I2CDevice i2cDevice;
 	
 	private Color[] ledColors = new Color[LED_COUNT];
-	private boolean isLedChange = false;
+	private boolean isChange = false;
+	private boolean isThrow = false;
 	
 	{
 		for (int i = 0; i < ledColors.length; i++) {
@@ -35,7 +36,7 @@ public class LedAndOtherController {
 		if (isSkip) return this;
 		if (ledColors[index].getRGB() != color.getRGB()) {
 			ledColors[index] = color;
-			isLedChange = true;
+			isChange = true;
 		}
 		return this;
 	}
@@ -46,14 +47,21 @@ public class LedAndOtherController {
 		return this;
 	}
 	
-	
+	public LedAndOtherController setTurn(boolean isThrow) {
+		if (this.isThrow != isThrow) {
+			this.isThrow = isThrow;
+			isChange = true;
+		}
+		return this;
+	}
 	
 	
 	public LedAndOtherController updateLed() throws IOException {
 		if (isSkip) return this;
-		if (isLedChange) {
-			isLedChange = false;
-			ByteBuffer buffer = ByteBuffer.allocate(LED_COUNT * 4).order(ByteOrder.BIG_ENDIAN);
+		if (isChange) {
+			isChange = false;
+			ByteBuffer buffer = ByteBuffer.allocate(LED_COUNT * 4 + 1).order(ByteOrder.BIG_ENDIAN);
+			buffer.put(isThrow ? (byte)1 : (byte)0);
 			for (Color ledColor : ledColors) {
 				buffer.putInt(ledColor.getRGB());
 			}

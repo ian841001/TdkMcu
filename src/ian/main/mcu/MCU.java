@@ -68,8 +68,16 @@ public class MCU implements Closeable {
 	// ------------------error flag-----------------
 	
 	static long rollModeLastTime;
-	static long rollModePreX;
-	static double[] rollModeVShouldBe;
+	static double rollModePreX;
+	
+	
+	static int yawModeOffset;
+	
+	
+	static boolean isTimeing;
+	static boolean isThrow;
+	static int statusCount;
+	
 	
 	
 	
@@ -82,9 +90,6 @@ public class MCU implements Closeable {
 		MainStart.print("MCU", info);
 	}
 	
-	static int choose(int index, int defaultData, int... data) {
-		return index < data.length ? data[index] : defaultData;
-	}
 	public static class MsgIndex {
 		public static class MsgStruct implements Serializable {
 			private static final long serialVersionUID = 1L;
@@ -96,25 +101,45 @@ public class MCU implements Closeable {
 				this.msgStr = msgStr;
 			}
 		}
-		public static final MsgStruct POWER_OFF      = new MsgStruct(0, "系統釋放");
-		public static final MsgStruct STOP           = new MsgStruct(0, "等待");
-		public static final MsgStruct RUN            = new MsgStruct(0, "動作中");
+		public static final MsgStruct POWER_OFF             = new MsgStruct(0, "系統釋放");
+		public static final MsgStruct STOP                  = new MsgStruct(0, "等待");
+		public static final MsgStruct RUN                   = new MsgStruct(0, "動作中");
 		
-		public static final MsgStruct WAIT_MODE_1    = new MsgStruct(1, "等待 ok_to_arm...");
-		public static final MsgStruct WAIT_MODE_2    = new MsgStruct(1, "等待 angle_mode...");
-		public static final MsgStruct WAIT_MODE_3    = new MsgStruct(1, "等待 ok_to_arm 和 angle_mode...");
+		public static final MsgStruct WAIT_MODE_1           = new MsgStruct(1, "等待 ok_to_arm...");
+		public static final MsgStruct WAIT_MODE_2           = new MsgStruct(1, "等待 angle_mode...");
+		public static final MsgStruct WAIT_MODE_3           = new MsgStruct(1, "等待 ok_to_arm 和 angle_mode...");
 		
-		public static final MsgStruct READY_FLY      = new MsgStruct(0, "準備起飛");
-		public static final MsgStruct FORCE_FLY      = new MsgStruct(0, "起飛中");
-		public static final MsgStruct WAIT_TO_BARO   = new MsgStruct(0, "等待至定高點");
+		public static final MsgStruct READY_FLY             = new MsgStruct(0, "準備起飛");
+		public static final MsgStruct FORCE_FLY             = new MsgStruct(0, "起飛中");
+		public static final MsgStruct SET_BARO              = new MsgStruct(0, "設定定高點");
 		
-		public static final MsgStruct FOLLOW_LINE    = new MsgStruct(0, "循線中");
+		public static final MsgStruct FOLLOW_LINE           = new MsgStruct(0, "循線中");
+		public static final MsgStruct TURN_LEFT             = new MsgStruct(0, "左轉中");
+		public static final MsgStruct SHY                   = new MsgStruct(0, "避障中");
 		
-		public static final MsgStruct LANDING        = new MsgStruct(0, "降落中");
-		public static final MsgStruct LANDED         = new MsgStruct(0, "降落完成");
 		
 		
-		public static final MsgStruct CAN_NOT_FLY    = new MsgStruct(2, "無法起飛");
+		public static final MsgStruct FOLLOW_LINE_ST        = new MsgStruct(0, "循線至起飛線");
+		public static final MsgStruct FOLLOW_LINE_STE       = new MsgStruct(0, "穿越起飛線");
+		public static final MsgStruct FOLLOW_LINE_TURN      = new MsgStruct(0, "循線至第一個轉彎點");
+		public static final MsgStruct FOLLOW_LINE_TURNE     = new MsgStruct(0, "轉第一個彎");
+		public static final MsgStruct FOLLOW_LINE_THROW     = new MsgStruct(0, "循線至拋射點");
+		public static final MsgStruct FOLLOW_LINE_THROWE    = new MsgStruct(0, "穿越拋射點");
+		public static final MsgStruct FOLLOW_LINE_TURN2     = new MsgStruct(0, "循線至第二個轉彎點");
+		public static final MsgStruct FOLLOW_LINE_TURN2E    = new MsgStruct(0, "轉第二個彎");
+		public static final MsgStruct FOLLOW_LINE_OBS       = new MsgStruct(0, "循線至障礙物");
+		public static final MsgStruct FOLLOW_LINE_OBSE      = new MsgStruct(0, "穿越障礙物");
+		public static final MsgStruct FOLLOW_LINE_STOP      = new MsgStruct(0, "循線至停止線");
+		public static final MsgStruct FOLLOW_LINE_STOPE     = new MsgStruct(0, "穿越停止線");
+		
+		public static final MsgStruct PRELAND               = new MsgStruct(0, "準備降落");
+		public static final MsgStruct LANDING               = new MsgStruct(0, "降落中");
+		public static final MsgStruct LANDED                = new MsgStruct(0, "降落完成");
+		
+		
+		public static final MsgStruct DEBUG_MODE            = new MsgStruct(0, "偵錯模式");
+		
+		public static final MsgStruct CAN_NOT_FLY           = new MsgStruct(2, "無法起飛");
 		
 		
 	}
@@ -130,10 +155,12 @@ public class MCU implements Closeable {
 			info.rollMode = ControlMode.STOP;
 			info.pitchMode = ControlMode.STOP;
 			MainStart.info.msgStruct = MsgIndex.STOP;
-			
-
-			info.rollMode = ControlMode.WORK;
 			info.takeOffHeading = info.att[2];
+			info.wantHeading = 0;
+
+//			info.rollMode = ControlMode.WORK;
+//			info.yawMode = ControlMode.WORK;
+			
 			break;
 		case 1:
 			if (btn) {
@@ -182,41 +209,112 @@ public class MCU implements Closeable {
 				createTimer();
 				info.step = 1012;
 			}
+			if (info.altEstAlt > 10) {
+				info.yawMode = ControlMode.WORK;
+				info.rollMode = ControlMode.WORK;
+				info.pitchMode = ControlMode.WORK;
+			}
 			break;
 		case 1012:
 			if (timerOn(100)) {
 				info.step = 13;
-				info.msgStruct = MsgIndex.WAIT_TO_BARO;
+				info.msgStruct = MsgIndex.SET_BARO;
 			}
 			break;
 		case 13: // 設定高度200cm
 			info.baroMode = ControlMode.WORK;
 			if (info.baro_mode) {
-				info.setWantAlt = 80;
-				info.step = 14;
-			}
-			break;
-		case 14: // 等待至200
-			if (Math.abs(info.altEstAlt - info.setWantAlt) <= altError) {
+				isTimeing = false;
+				isThrow = false;
+				
+				info.setWantAlt = 60;
+				
 				info.step = 15;
-				info.msgStruct = MsgIndex.FOLLOW_LINE;
+//				info.step = 20;
 			}
 			break;
 		case 15:
-			createTimer();
-			info.step = 16;
-			info.yawMode = ControlMode.WORK;
-			info.rollMode = ControlMode.WORK;
-			break;
-		case 16:
+			info.msgStruct = MsgIndex.DEBUG_MODE;
 			if (btn) {
 				info.step = 100;
-				info.yawMode = ControlMode.RELEASE;
-				info.rollMode = ControlMode.RELEASE;
 			}
-//			info.yawMode = info.extraRc[0] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
-//			info.rpMode = info.extraRc[2] > 1700 ? ControlMode.WORK : ControlMode.RELEASE;
 			break;
+			
+			
+		case 20:
+			createTimer();
+			info.step = 21;
+			break;
+		case 21:
+			info.msgStruct = MsgIndex.FOLLOW_LINE;
+			if (info.captureStatus == 3) {
+				statusCount++;
+				if (statusCount > 5) {
+//					info.step = 90;
+				}
+			} else {
+				statusCount = 0;
+			}
+//			switch (info.captureStatus) {
+//			case 2: // 左轉
+//				info.step = 25;
+//				break;
+//			case 3: // 避障
+//				statusCount++;
+//				info.step = 90;
+//				break;
+//			case 4: // 降落
+//				info.step = 90;
+//				break;
+//			default:
+//				break;
+//			}
+			if (!isThrow) {
+				if (timerOn(5000)) { // 拋射
+					isThrow = true;
+					loc.setTurn(true);
+				}
+			}
+			break;
+			
+			
+//		case 25: // 左轉
+//			isTurned = true;
+//			info.wantHeading += 90;
+//			info.msgStruct = MsgIndex.TURN_LEFT;
+//			info.pitchMode = ControlMode.STOP;
+//			info.step = 26;
+//			break;
+//		case 26:
+//			if (info.captureStatus == 1 && Math.abs(yawModeOffset) < 10) {
+//				info.pitchMode = ControlMode.WORK;
+//				info.step = 20;
+//			}
+//			break;
+			
+			
+		case 30:
+			if (info.captureStatus == 1) {
+				info.step = 20;
+			}
+			break;
+			
+			
+		case 90: // 降落
+			info.msgStruct = MsgIndex.PRELAND;
+			createTimer();
+			info.step = 91;
+			break;
+		case 91:
+			if (timerOn(1000)) {
+				throttleValue = throttleHoldValue - 30;
+				info.baroMode = ControlMode.STOP;
+				info.pitchMode = ControlMode.STOP;
+				info.step = 100;
+			}
+			break;
+			
+			
 		case 100: // 終點降落
 			info.setWantAlt = 0;
 			info.step = 101;
@@ -245,9 +343,36 @@ public class MCU implements Closeable {
 	}
 	private void mode() {
 		
-		setRc.setAux1(choose(info.armMode , 0, 0, 1098, 1898));
+		switch (info.armMode) {
+		case ControlMode.RELEASE:
+			setRc.setAux1(0);
+			break;
+		case ControlMode.STOP:
+			setRc.setAux1(1098);
+			break;
+		case ControlMode.WORK:
+			setRc.setAux1(1898);
+			break;
+		default:
+			setRc.setAux1(0);
+			break;
+		}
 		
-		setRc.setAux3(choose(info.baroMode, 0, 0, 1500, 1898));
+		switch (info.baroMode) {
+		case ControlMode.RELEASE:
+			setRc.setAux3(0);
+			break;
+		case ControlMode.STOP:
+			setRc.setAux3(1098);
+			break;
+		case ControlMode.WORK:
+			setRc.setAux3(1898);
+			break;
+		default:
+			setRc.setAux3(0);
+			break;
+		}
+		
 		
 		if (info.baro_mode) {
 			int offset = info.setWantAlt - info.altHold;
@@ -269,16 +394,20 @@ public class MCU implements Closeable {
 			setRc.setYaw(1500);
 			break;
 		case ControlMode.WORK:
-			info.wantHeading = (short) (MainStart.extraInfo[2]);
+			if (info.captureStatus != 0){
+				info.wantHeading = (short) (info.captureAngle + info.att[2]);
+			}
 			
-			int offset = info.att[2] + info.wantHeading - info.takeOffHeading;
-			if (offset <= -180) {
-				offset += 360;
+			
+			yawModeOffset = info.wantHeading - info.att[2];
+//			yawModeOffset = info.captureStatus != 0 ? info.captureAngle : 0;
+			if (yawModeOffset <= -180) {
+				yawModeOffset += 360;
 			}
-			if (offset > 180) {
-				offset -= 360;
+			if (yawModeOffset > 180) {
+				yawModeOffset -= 360;
 			}
-			offset *= -10;
+			int offset = yawModeOffset * 10;
 			
 			if (offset > 400) {
 				offset = 400;
@@ -298,15 +427,15 @@ public class MCU implements Closeable {
 			setRc.setRoll(0);
 			break;
 		case ControlMode.STOP:
-			setRc.setRoll(1500);
+			setRc.setRoll(1486);
 			break;
 		case ControlMode.WORK:
 			long time = getTime();
-			double vShouldBe = getShouldBe(info.captureDeltaX);
-			double vCurrent = (double)(info.captureDeltaX - rollModePreX) / (time - rollModeLastTime);
-			rollModePreX = info.captureDeltaX;
+			double vShouldBe = MathCal.getShouldBe(info.captureDeltaX);
+			double vCurrent = (double)(getMm(info.captureDeltaX) - rollModePreX) / (time - rollModeLastTime);
+			rollModePreX = getMm(info.captureDeltaX);
 			rollModeLastTime = time;
-			int offset = (int) ((vShouldBe - vCurrent) * -500);
+			int offset = (int) ((vShouldBe - vCurrent) * 150);
 			
 			info.rpiDebug[4] = (int) (vShouldBe * 1000000);
 			info.rpiDebug[5] = (int) (vCurrent * 1000000);
@@ -314,14 +443,14 @@ public class MCU implements Closeable {
 			
 			
 
-			if (offset > 400) {
-				offset = 400;
+			if (offset > 60) {
+				offset = 60;
 			}
-			if (offset < -400) {
-				offset = -400;
+			if (offset < -60) {
+				offset = -60;
 			}
 			
-			setRc.setRoll(1500 + offset);
+			setRc.setRoll(1481 + offset);
 			
 			break;
 		default:
@@ -337,8 +466,7 @@ public class MCU implements Closeable {
 			setRc.setPitch(1500);
 			break;
 		case ControlMode.WORK:
-			
-			
+			setRc.setPitch(1510);
 			break;
 		default:
 			setRc.setPitch(0);
@@ -364,7 +492,7 @@ public class MCU implements Closeable {
 		ca = new CaptureAdapter().setup();
 		mwc = new MwcSerialAdapter().open();
 		loc = new LedAndOtherController().init();
-		preShouldBe();
+		MathCal.preShouldBe();
 		printTime1 = getTime();
 		return this;
 	}
@@ -413,6 +541,7 @@ public class MCU implements Closeable {
 				info.setOtherData(loc.getSonar());
 				if (ledError != 0) {
 					print("conn led IO");
+					loc.updateLed();
 				}
 				ledError = 0;
 			} catch(IOException e) {
@@ -451,12 +580,15 @@ public class MCU implements Closeable {
 			info.yawMode = ControlMode.RELEASE;
 			info.rollMode = ControlMode.RELEASE;
 			info.pitchMode = ControlMode.RELEASE;
+			
+			loc.setTurn(false);
 		}
 		
 		info.rpiDebug[0] = setRc.getRoll();
 		info.rpiDebug[1] = setRc.getPitch();
 		info.rpiDebug[2] = setRc.getYaw();
 		
+		info.rpiDebug[3] = info.extraRc[2];
 		
 		if (info.extraRc[2] < 1500) {
 			setRc.setRoll(0);
@@ -464,12 +596,24 @@ public class MCU implements Closeable {
 		setRc.setYaw(0);
 		setRc.setPitch(0);
 		
-		
-		
 		try {
-			loc.setLed(0, info.captureStatus != 0 ? Color.GREEN : Color.RED).updateLed();
+			switch(info.captureStatus) {
+			case 0:
+				loc.setLed(0, Color.RED);
+				break;
+			case 1:
+				loc.setLed(0, Color.GREEN);
+				break;
+			case 3:
+				loc.setLed(0, Color.BLUE);
+				break;
+			default:
+				loc.setLed(0, Color.WHITE);
+				break;
+			}
+			loc.updateLed();
 		} catch (IOException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		
 		
@@ -517,24 +661,11 @@ public class MCU implements Closeable {
 		
 		
 	}
+	
+	
 	public static double getMm(short pixel) {
 		return pixel * (info.altEstAlt + 5.5) / 54.16;
 	}
 	
-	private static void preShouldBe() {
-		rollModeVShouldBe = new double[500];
-		for (int i = 0; i < rollModeVShouldBe.length; i++) {
-			rollModeVShouldBe[i] = Math.pow(i - 250, 3) / 1000000;
-			if (rollModeVShouldBe[i] > 0.15) {
-				rollModeVShouldBe[i] = 0.15;
-			}
-			if (rollModeVShouldBe[i] < -0.15) {
-				rollModeVShouldBe[i] = -0.15;
-			}
-		}
-	}
-	private static double getShouldBe(int deltaX) {
-		return rollModeVShouldBe[deltaX + 250];
-	}
 	
 }

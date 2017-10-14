@@ -21,9 +21,6 @@ public class MainStart {
 	public static AllData info = new AllData();
 	public static MwcSetData setRc = new MwcSetData();
 
-	
-	
-	
 	public static byte[] extraInfo = new byte[8];
 	
 	
@@ -31,7 +28,6 @@ public class MainStart {
 	private static void print(String info) {
 		MainStart.print("Main", info);
 	}
-	
 	
 	public static void run(String[] args) {
 		print("Setup.");
@@ -70,16 +66,9 @@ public class MainStart {
 	public static void main(String[] args) {
 		run(args);
 //		try {
-//			Test.test();
-//		} catch (UnsupportedBusNumberException | IOException e) {
-//			e.printStackTrace();
-//		}
-//		JniTest.test();
-//		try {
 //			for (int i = 0; i < 50; i++)
-//			System.out.println(TempatureAdapter.getTemp());
+//				System.out.println(TempatureAdapter.getTemp());
 //		} catch (IOException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 		System.exit(0);

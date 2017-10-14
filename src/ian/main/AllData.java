@@ -10,13 +10,10 @@ import ian.main.mcu.MCU.MsgIndex.MsgStruct;
 public class AllData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public static final int DATA_LEN = 57;
+	public static final int DATA_LEN = 61;
 	public static final int OTHER_DATA_LEN = 12;
 	public static final int CAPTURE_DATA_LEN = 7;
 	public static final int MCU_DATA_LEN = 4;
-	
-	public static final int ALL_DATA_LEN = DATA_LEN + OTHER_DATA_LEN + CAPTURE_DATA_LEN + MCU_DATA_LEN;
-	
 	
 	
 	public short[] motor = new short[8];
@@ -25,6 +22,7 @@ public class AllData implements Serializable {
     public short[] att = new short[3];
     public int altEstAlt;
     public short altVario;
+    public int altBaro;
     public int altHold;
     public boolean isSonarOk;
     public boolean ok_to_arm;
@@ -84,6 +82,7 @@ public class AllData implements Serializable {
         }
         altEstAlt = byteBuffer.getInt();
         altVario = byteBuffer.getShort();
+        altBaro = byteBuffer.getInt();
         altHold = byteBuffer.getInt();
         for (int i = 0; i < 4; i++) {
         	debug[i] = byteBuffer.getShort();
