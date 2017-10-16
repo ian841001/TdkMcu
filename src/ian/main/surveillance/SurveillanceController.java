@@ -16,6 +16,7 @@ import javax.xml.ws.WebServiceException;
 import com.sun.xml.internal.ws.Closeable;
 
 import ian.main.MainStart;
+import ian.main.mcu.MCU;
 
 public class SurveillanceController implements Closeable {
 	public static final int LISTEN_PORT = 5987;
@@ -93,6 +94,11 @@ public class SurveillanceController implements Closeable {
 		}
 		
 		private void processCmd(byte cmd) throws IOException {
+			ByteBuffer byteBuffer;
+			int len;
+			byte[] allData;
+			
+			
 			byte[] data;
 			switch (cmd) {
 			case Cmd.CMD_GET_INFO:
@@ -100,15 +106,29 @@ public class SurveillanceController implements Closeable {
 				break;
 			case Cmd.CMD_SET_STATUS:
 				data = new byte[]{0};
-				int len = is.read();
-				byte[] allData = new byte[len];
+				len = is.read();
+				allData = new byte[len];
 				while (is.available() < len);
 				is.read(allData);
-				ByteBuffer byteBuffer = ByteBuffer.wrap(allData).order(ByteOrder.LITTLE_ENDIAN);
+				byteBuffer = ByteBuffer.wrap(allData).order(ByteOrder.LITTLE_ENDIAN);
 				for (int i = 0; i < MainStart.extraInfo.length; i++) {
 					MainStart.extraInfo[i] = byteBuffer.get();
 				}
 				// MainStart.ems = byteBuffer.get();
+				break;
+			case Cmd.CMD_GET_ROLL_PID:
+				byteBuffer = ByteBuffer.allocate(24).order(ByteOrder.LITTLE_ENDIAN);
+				byteBuffer.putDouble(MCU.rollPID.getKp()).putDouble(MCU.rollPID.getKi()).putDouble(MCU.rollPID.getKd());
+				data = byteBuffer.array();
+				break;
+			case Cmd.CMD_SET_ROLL_PID:
+				data = new byte[]{0};
+				len = is.read();
+				allData = new byte[len];
+				while (is.available() < len);
+				is.read(allData);
+				byteBuffer = ByteBuffer.wrap(allData).order(ByteOrder.LITTLE_ENDIAN);
+				MCU.rollPID.setTunings(byteBuffer.getDouble(), byteBuffer.getDouble(), byteBuffer.getDouble());
 				break;
 			default:
 				data = new byte[]{0};

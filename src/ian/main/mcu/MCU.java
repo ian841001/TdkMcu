@@ -84,7 +84,7 @@ public class MCU implements Closeable {
 	static boolean pwr = false;
 	static boolean btn = false;
 	
-	
+	public static PID rollPID;
 	
 	private static void print(String info) {
 		MainStart.print("MCU", info);
@@ -160,6 +160,7 @@ public class MCU implements Closeable {
 
 //			info.rollMode = ControlMode.WORK;
 //			info.yawMode = ControlMode.WORK;
+//			info.pitchMode = ControlMode.WORK;
 			
 			break;
 		case 1:
@@ -227,10 +228,10 @@ public class MCU implements Closeable {
 				isTimeing = false;
 				isThrow = false;
 				
-				info.setWantAlt = 60;
+				info.setWantAlt = 80;
 				
-				info.step = 15;
-//				info.step = 20;
+//				info.step = 15;
+				info.step = 20;
 			}
 			break;
 		case 15:
@@ -422,6 +423,9 @@ public class MCU implements Closeable {
 			break;
 		}
 		
+		
+		
+		rollPID.setMode(info.rollMode == ControlMode.WORK ? PID.AUTOMATIC : PID.MANUAL);
 		switch (info.rollMode) {
 		case ControlMode.RELEASE:
 			setRc.setRoll(0);
@@ -430,33 +434,54 @@ public class MCU implements Closeable {
 			setRc.setRoll(1486);
 			break;
 		case ControlMode.WORK:
-			long time = getTime();
-			double vShouldBe = MathCal.getShouldBe(info.captureDeltaX);
-			double vCurrent = (double)(getMm(info.captureDeltaX) - rollModePreX) / (time - rollModeLastTime);
-			rollModePreX = getMm(info.captureDeltaX);
-			rollModeLastTime = time;
-			int offset = (int) ((vShouldBe - vCurrent) * 150);
-			
-			info.rpiDebug[4] = (int) (vShouldBe * 1000000);
-			info.rpiDebug[5] = (int) (vCurrent * 1000000);
-			info.rpiDebug[6] = offset;
 			
 			
-
-			if (offset > 60) {
-				offset = 60;
-			}
-			if (offset < -60) {
-				offset = -60;
-			}
-			
-			setRc.setRoll(1481 + offset);
+			setRc.setRoll((short)(1486 + rollPID.setInput(getMm(info.captureDeltaX)).compute().getOutput()));
 			
 			break;
 		default:
 			setRc.setRoll(0);
 			break;
 		}
+		
+		
+		
+		
+//		switch (info.rollMode) {
+//		case ControlMode.RELEASE:
+//			setRc.setRoll(0);
+//			break;
+//		case ControlMode.STOP:
+//			setRc.setRoll(1486);
+//			break;
+//		case ControlMode.WORK:
+//			long time = getTime();
+//			double vShouldBe = MathCal.getShouldBe(info.captureDeltaX);
+//			double vCurrent = (double)(getMm(info.captureDeltaX) - rollModePreX) / (time - rollModeLastTime);
+//			rollModePreX = getMm(info.captureDeltaX);
+//			rollModeLastTime = time;
+//			int offset = (int) ((vShouldBe - vCurrent) * 150);
+//			
+//			info.rpiDebug[4] = (int) (vShouldBe * 1000000);
+//			info.rpiDebug[5] = (int) (vCurrent * 1000000);
+//			info.rpiDebug[6] = offset;
+//			
+//			
+//
+//			if (offset > 60) {
+//				offset = 60;
+//			}
+//			if (offset < -60) {
+//				offset = -60;
+//			}
+//			
+//			setRc.setRoll(1481 + offset);
+//			
+//			break;
+//		default:
+//			setRc.setRoll(0);
+//			break;
+//		}
 		
 		switch (info.pitchMode) {
 		case ControlMode.RELEASE:
@@ -466,7 +491,7 @@ public class MCU implements Closeable {
 			setRc.setPitch(1500);
 			break;
 		case ControlMode.WORK:
-			setRc.setPitch(1510);
+			setRc.setPitch(1505 + MainStart.extraInfo[0]);
 			break;
 		default:
 			setRc.setPitch(0);
@@ -494,6 +519,7 @@ public class MCU implements Closeable {
 		loc = new LedAndOtherController().init();
 		MathCal.preShouldBe();
 		printTime1 = getTime();
+		rollPID = new PID(0.08, 0.0, 0.03);
 		return this;
 	}
 	
@@ -590,11 +616,14 @@ public class MCU implements Closeable {
 		
 		info.rpiDebug[3] = info.extraRc[2];
 		
-		if (info.extraRc[2] < 1500) {
-			setRc.setRoll(0);
-		}
-		setRc.setYaw(0);
-		setRc.setPitch(0);
+		
+//		rollPID.setMode(info.extraRc[2] > 1500 ? PID.AUTOMATIC : PID.MANUAL);
+		
+//		if (info.extraRc[2] < 1500) {
+//			setRc.setRoll(0);
+//		}
+//		setRc.setYaw(0);
+//		setRc.setPitch(0);
 		
 		try {
 			switch(info.captureStatus) {

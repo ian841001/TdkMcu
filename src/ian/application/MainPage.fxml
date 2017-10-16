@@ -220,6 +220,18 @@
 			<Label fx:id="detailLbl5" layoutX="110" layoutY="100" text="200" />
 		</Pane>
 		<!-- end detail -->
+		
+		<!-- roll pid -->
+		<Pane layoutX="200" layoutY="730">
+			<Label layoutX="0" layoutY="4" text="roll P" />
+			<TextField fx:id="rollPTxt" layoutX="40" layoutY="0" prefWidth="100" text="0" />
+			<Label layoutX="0" layoutY="34" text="roll I" />
+			<TextField fx:id="rollITxt" layoutX="40" layoutY="30" prefWidth="100" text="0" />
+			<Label layoutX="0" layoutY="64" text="roll D" />
+			<TextField fx:id="rollDTxt" layoutX="40" layoutY="60" prefWidth="100" text="0" />
+			<Button fx:id="rollSetBtn" layoutX="0" layoutY="100" prefHeight="23" prefWidth="75" text="update" blendMode="MULTIPLY" mnemonicParsing="false" />
+		</Pane>
+		<!-- end roll pid -->
 	</Pane>
 	
 	

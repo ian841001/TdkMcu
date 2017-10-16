@@ -7,6 +7,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -77,6 +79,9 @@ public class MainController implements Initializable {
 	
 	@FXML Label detailLbl0, detailLbl1, detailLbl2, detailLbl3, detailLbl4,detailLbl5;
 	
+	@FXML TextField rollPTxt, rollITxt, rollDTxt;
+	@FXML Button rollSetBtn;
+	
 	
 
 	private AllData info = new AllData();
@@ -109,6 +114,14 @@ public class MainController implements Initializable {
 				lblStatus.setText(new String[]{"Disconnected.","Connecting...","Connected.","ReConnnect..."}[Main.mcuSocket.mode()]);
 				lblStatus.setStyle("-fx-background-color: " + new String[]{"#FF8080;","#FFFF00;","#66FF66;","#5599FF;"}[Main.mcuSocket.mode()]);
 				if (Main.mcuSocket.mode() == 2) {
+					try {
+						ByteBuffer buffer = ByteBuffer.wrap(Main.mcuSocket.cmd(Cmd.CMD_GET_ROLL_PID)).order(ByteOrder.LITTLE_ENDIAN);
+						rollPTxt.setText(String.valueOf(buffer.getDouble()));
+						rollITxt.setText(String.valueOf(buffer.getDouble()));
+						rollDTxt.setText(String.valueOf(buffer.getDouble()));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					repeater.start();
 				}
 			}
@@ -337,6 +350,37 @@ public class MainController implements Initializable {
 			@Override
 			public void run() {
 				updateLblStatus();
+			}
+		});
+		rollSetBtn.setOnMouseClicked(new EventHandler<Event>() {
+			@Override
+			public void handle(Event event) {
+				ByteBuffer buffer = ByteBuffer.allocate(24).order(ByteOrder.LITTLE_ENDIAN);
+				double p, i, d;
+				try {
+					p = Double.valueOf(rollPTxt.getText());
+				} catch(NumberFormatException e) {
+					p = 0;
+					rollPTxt.setText(String.valueOf(0));
+				}
+				try {
+					i = Double.valueOf(rollITxt.getText());
+				} catch(NumberFormatException e) {
+					i = 0;
+					rollITxt.setText(String.valueOf(0));
+				}
+				try {
+					d = Double.valueOf(rollDTxt.getText());
+				} catch(NumberFormatException e) {
+					d = 0;
+					rollDTxt.setText(String.valueOf(0));
+				}
+				buffer.putDouble(p).putDouble(i).putDouble(d);
+				try {
+					Main.mcuSocket.cmd(Cmd.CMD_SET_ROLL_PID, buffer.array());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		

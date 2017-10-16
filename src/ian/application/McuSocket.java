@@ -133,42 +133,42 @@ public class McuSocket {
 	}
 	
 	public byte[] cmd(byte cmd, byte[] data) throws IOException {
-		
-		os.write(cmd);
-		if (data != null) {
-			os.write(data.length);
-			os.write(data);
-		}
-		os.flush();
-		
-		int len;
-		int index = 0;
-		byte[] buffer = new byte[4];
-		byte[] outt;
-		int tmp;
-		while (true) {
-			tmp = is.read(buffer, index, 1);
-			if (tmp == 0) continue;
-			else if (tmp == -1) throw new IOException("socket closed.");
-			if (++index < buffer.length) continue;
-			
-			
-			
-			len = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getInt();
-			
-			index = 0;
-			outt = new byte[len];
-			while (index < len) {
-				tmp = is.read(outt, index, outt.length - index);
-				if (tmp == -1) throw new IOException();
-				index += tmp;
+		synchronized(sc) {
+			os.write(cmd);
+			if (data != null) {
+				os.write(data.length);
+				os.write(data);
 			}
+			os.flush();
 			
-			break;
+			int len;
+			int index = 0;
+			byte[] buffer = new byte[4];
+			byte[] outt;
+			int tmp;
+			while (true) {
+				tmp = is.read(buffer, index, 1);
+				if (tmp == 0) continue;
+				else if (tmp == -1) throw new IOException("socket closed.");
+				if (++index < buffer.length) continue;
+				
+				
+				
+				len = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).getInt();
+				
+				index = 0;
+				outt = new byte[len];
+				while (index < len) {
+					tmp = is.read(outt, index, outt.length - index);
+					if (tmp == -1) throw new IOException();
+					index += tmp;
+				}
+				
+				break;
+			}
+
+			return outt;
 		}
-		
-		
-		return outt;
 	}
 	
 	
